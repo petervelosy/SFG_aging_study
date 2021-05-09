@@ -62,7 +62,7 @@ end
 % check optional args
 if ~isempty(varargin)
     for v = 1:length(varargin)
-        if isnumeric(varargin{v}) && ismembertol(varargin{v}, 12:1200) && mod(varargin{v}, 4)==0 && ~exist('trialMax', 'var') 
+        if isnumeric(varargin{v}) && ismembertol(varargin{v}, 12:5000) && mod(varargin{v}, 4)==0 && ~exist('trialMax', 'var') 
             trialMax = varargin{v};
         elseif islogical(varargin{v}) && numel(varargin{v})==1 && ~exist('loudnessEq', 'var')
             loudnessEq = varargin{v};
@@ -239,10 +239,10 @@ for d = 1:length(stimTypeDirs)
 end
 
 % save out stimArray
-save(stimArrayFile, 'stimArray');
+save(stimArrayFile, 'stimArray', '-v7.3');
 
 % save out expopt
-save(expoptFile, 'expopt');
+save(expoptFile, 'expopt', '-v7.3');
 
 % user message
 disp([char(10), 'Saved out final stimulus array to ', stimArrayFile]);

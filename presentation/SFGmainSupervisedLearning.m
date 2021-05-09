@@ -283,7 +283,7 @@ screens=Screen('Screens');
 screenNumber=max(screens);  % look into XOrgConfCreator and XOrgConfSelector 
 
 % open stimulus window
-[win, rect] = Screen('OpenWindow', screenNumber, backGroundColor);
+[win, rect] = Screen('OpenWindow', screenNumber, backGroundColor, [], [], [], [], [], []);
 
 % query frame duration for window
 ifi = Screen('GetFlipInterval', win);
@@ -429,8 +429,8 @@ for i = 1:size(stimArray,1)
 end
 
 % Exit conditions:
-minTrialCount = 100; % TODO 100
-minReversalCount = 7; % TODO 10
+minTrialCount = expopt.expopt.minTrialCountPerBlock;
+minReversalCount = expopt.expopt.minReversalCountPerBlock;
 
 %% Blocks loop
 
@@ -509,9 +509,9 @@ for block = startBlockNo:blockNo
     %% Trials loop
     
     % TODO
-    initialStepSize = 80;
-    staircaseHitThreshold = 3;
-    staircaseMissThreshold = 1;
+    initialStepSize = expopt.expopt.initialStepSize;
+    staircaseHitThreshold = expopt.expopt.staircaseHitThreshold;
+    staircaseMissThreshold = expopt.expopt.staircaseMissThreshold;
     
     stepSize = initialStepSize;
     hitsInARow = 0;
@@ -665,12 +665,16 @@ for block = startBlockNo:blockNo
                 staircaseTendency = -1;
             end
             if hitsInARow == staircaseHitThreshold
-                hitsInARow = 0;
-                stepSize = stepSize - 1;
-                if staircaseTendency == 1
-                    staircaseTendency = -1;
-                    reversalCount = reversalCount + 1;
-                    disp(['REVERSAL nr. ', num2str(reversalCount)]);
+                if stepSize > expopt.expopt.stepSizeMin
+                    hitsInARow = 0;
+                    stepSize = stepSize - expopt.expopt.stepSizeStep;
+                    if staircaseTendency == 1
+                        staircaseTendency = -1;
+                        reversalCount = reversalCount + 1;
+                        disp(['REVERSAL nr. ', num2str(reversalCount)]);
+                    end
+                else
+                    disp('No reversal will occur: we are at the minimum available step size.');
                 end
             end
         elseif (detectedDirection(trial)==1 && desiredStepSize < 0) || (detectedDirection(trial)==-1 && desiredStepSize > 0)
@@ -683,11 +687,15 @@ for block = startBlockNo:blockNo
                 staircaseTendency = -1;
             end
             if missesInARow == staircaseMissThreshold
-                stepSize = stepSize + 1;
-                if staircaseTendency == -1
-                    staircaseTendency = 1;
-                    reversalCount = reversalCount + 1;
-                    disp(['REVERSAL nr. ', num2str(reversalCount)]);
+                if stepSize < expopt.expopt.stepSizeMax
+                    stepSize = stepSize + expopt.expopt.stepSizeStep;
+                    if staircaseTendency == -1
+                        staircaseTendency = 1;
+                        reversalCount = reversalCount + 1;
+                        disp(['REVERSAL nr. ', num2str(reversalCount)]);
+                    end
+                else
+                    disp('No reversal will occur: we are at the maximum available step size.');
                 end
             end
         end
