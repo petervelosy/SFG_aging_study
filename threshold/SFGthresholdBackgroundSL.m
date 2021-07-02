@@ -382,14 +382,9 @@ try
         % update quest only after the first few trials
         if trialN > qopt.ignoreTrials
 
-            % if previous trial was with figure, update quest object
-            if trialType(trialN-1) == 1
-                % missing response is understood as negative response for Quest
-                if isnan(figDetect(trialN-1))
-                    questResp = 0;
-                else
-                    questResp = figDetect(trialN-1);
-                end
+            % do not update Quest on a missing response
+            if ~isnan(figDetect(trialN-1))
+                questResp = figDetect(trialN-1);
                 q = QuestUpdate(q, lastIntensity, questResp);
             end
 
@@ -530,13 +525,11 @@ try
 
     %% Final Quest object update
 
-    % missing response is understood as negative response for Quest
-    if isnan(figDetect(trialN))
-        questResp = 0;
-    else
+    % do not update Quest on a missing response
+    if ~isnan(figDetect(trialN))
         questResp = figDetect(trialN);
+        q = QuestUpdate(q, tTest, questResp);
     end
-    q = QuestUpdate(q, tTest, questResp);
 
     % get final background-threshold estimate
     % ask Quest object about optimal log SNR - for setting toneComp
