@@ -95,7 +95,7 @@ paramFunctionName = strcat('experimentParams', group);
 expopt = feval(paramFunctionName);
 
 % get file name for SFGthresholdBackground results - exact file name contains unknown time stamp
-backgrResFile = dir([subDirName, '/thresholdBackground_sub', num2str(subNum), '*.mat']);
+backgrResFile = dir([subDirName, '/thresholdBackgroundSL_sub', num2str(subNum), '*.mat']);
 backgrResFilePath = [backgrResFile.folder, '/', backgrResFile.name];
 % load results from background-thresholding
 backgrRes = load(backgrResFilePath);

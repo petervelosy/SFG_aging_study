@@ -321,8 +321,8 @@ Screen('BlendFunction', qMarkWin, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
 Screen('TextSize', qMarkWin, 50);
 Screen('DrawText', qMarkWin, '?', xCenter-15, yCenter-15, textColor);
 
-okRespWin = createTextFeedbackOffscreenWindow('Jó válasz', win, backGroundColor, rect);
-badRespWin = createTextFeedbackOffscreenWindow('Rossz válasz', win, backGroundColor, rect);
+okRespWin = createTextFeedbackOffscreenWindow('Jó válasz', win, backGroundColor, rect, xCenter, yCenter, textColor);
+badRespWin = createTextFeedbackOffscreenWindow('Rossz válasz', win, backGroundColor, rect, xCenter, yCenter, textColor);
 
 % open PsychPortAudio device for playback
 pahandle = PsychPortAudio('Open', device, mode, reqLatencyClass, fs, nrChannels);
@@ -515,7 +515,6 @@ for block = startBlockNo:blockNo
     
     %% Trials loop
     
-    % TODO
     initialStepSize = expopt.expopt.initialStepSize;
     staircaseHitThreshold = expopt.expopt.staircaseHitThreshold;
     staircaseMissThreshold = expopt.expopt.staircaseMissThreshold;
@@ -526,7 +525,16 @@ for block = startBlockNo:blockNo
     direction = 0;
     staircaseTendency = 0;
     
-    toneCompConditions = [expopt.expopt.toneCompHigh, expopt.expopt.toneCompLow];
+    % TODO move up
+    subDirName = ['subject', num2str(subNum)];
+    
+    % get file name for SFGthresholdBackground results - exact file name contains unknown time stamp
+    backgrResFile = dir([subDirName, '/thresholdBackgroundSL_sub', num2str(subNum), '*.mat']);
+    backgrResFilePath = [backgrResFile.folder, '/', backgrResFile.name];
+    % load results from background-thresholding
+    backgrRes = load(backgrResFilePath);
+    
+    toneCompConditions = [backgrRes.backgroundEst, backgrRes.backgroundEst+expopt.expopt.highLowBgCompDiff];
     directionConditions = [-1, 1];
     
     % trial loop (over the trials for given block)
@@ -684,7 +692,11 @@ for block = startBlockNo:blockNo
                     disp('No reversal will occur: we are at the minimum available step size.');
                 end
             end
-            Screen('CopyWindow', okRespWin, win);
+            if feedback
+                Screen('CopyWindow', okRespWin, win);
+                Screen('DrawingFinished', win);
+                Screen('Flip', win);
+            end
         elseif (detectedDirection(trial)==1 && desiredStepSize < 0) || (detectedDirection(trial)==-1 && desiredStepSize > 0)
             disp('Subject made an error');
             acc(trial) = 0;
@@ -706,7 +718,11 @@ for block = startBlockNo:blockNo
                     disp('No reversal will occur: we are at the maximum available step size.');
                 end
             end
-            Screen('CopyWindow', badRespWin, win);
+            if feedback
+                Screen('CopyWindow', badRespWin, win);
+                Screen('DrawingFinished', win);
+                Screen('Flip', win);
+            end
         end
         % response time
         if ~isnan(respTime(trial))
