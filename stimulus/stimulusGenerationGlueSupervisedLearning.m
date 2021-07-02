@@ -52,12 +52,15 @@ function stimArrayFile = stimulusGenerationGlueSupervisedLearning(subNum, group,
 
 % check number of args
 if ~ismembertol(nargin, 1:3)
-    error(['Function "stimulusGenerationGlueThresholded" requires input arg "subNum" ',...
+    error(['Function "stimulusGenerationGlueThresholded" requires input arg "subNum" and "group" ',...
         'while input args "trialMax" and "loudnessEq" are optional!']);
 end
 % check mandatory arg
 if ~ismembertol(subNum, 1:999)
     error('Input arg "subNum" should be one of 1:999!');
+end
+if ~ismember(group, ['Young', 'Elderly', 'ElderlyHI'])
+    error('Input arg "group" should be one of "Young", "Elderly", "ElderlyHI"!');
 end
 % check optional args
 if ~isempty(varargin)
@@ -91,13 +94,18 @@ end
 paramFunctionName = strcat('experimentParams', group);
 expopt = feval(paramFunctionName);
 
+% get file name for SFGthresholdBackground results - exact file name contains unknown time stamp
+backgrResFile = dir([subDirName, '/thresholdBackground_sub', num2str(subNum), '*.mat']);
+backgrResFilePath = [backgrResFile.folder, '/', backgrResFile.name];
+% load results from background-thresholding
+backgrRes = load(backgrResFilePath);
+
 % coherence value to be used throughout all trials
 baseCoherence = expopt.figureCoh;
 % background values for normal and easy trials
-stdBackgr = expopt.toneCompHigh;
-lowBackgr = expopt.toneCompLow;
+stdBackgr = backgrRes.backgroundEst;
+lowBackgr = backgrRes.backgroundEst + expopt.highLowBgCompDiff;
 backgrValues = [stdBackgr, lowBackgr];
-
 
 %% Basic parameters - hardcoded values
 
@@ -245,7 +253,7 @@ save(stimArrayFile, 'stimArray', '-v7.3');
 save(expoptFile, 'expopt', '-v7.3');
 
 % user message
-disp([char(10), 'Saved out final stimulus array to ', stimArrayFile]);
+disp([newline, 'Saved out final stimulus array to ', stimArrayFile]);
 
 
 return

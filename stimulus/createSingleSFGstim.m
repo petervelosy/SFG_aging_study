@@ -152,6 +152,7 @@ if stimopt.figureStepS < 0
 end
 
 % select starting freqs
+
 figureStartFreqIdx = figureFreqIdx(randperm(length(figureFreqIdx), stimopt.figureCoh));
 
 % add steps

@@ -1,4 +1,4 @@
-function SFGmainSupervisedLearning(subNum, varargin)
+function SFGmainSupervisedLearning(subNum, feedback, varargin)
 Screen('Preference', 'SkipSyncTests', 1);  % TODO remove this
 %% Stochastic figure-ground experiment - main experimental script
 %
@@ -15,6 +15,7 @@ Screen('Preference', 'SkipSyncTests', 1);  % TODO remove this
 %
 % Mandatory input:
 % subNum        - Numeric value, one of 1:999. Subject number.
+% feedback      - true = training mode, false = test mode
 %
 % Optional inputs:
 % stimArrayFile - Char array, path to *.mat file containing the cell array 
@@ -54,6 +55,9 @@ end
 % check mandatory arg - subject number
 if ~ismembertol(subNum, 1:999)
     error('Input arg "subNum" should be between 1 - 999!');
+end
+if isempty(feedback)
+    feedback = false;
 end
 % check and sort optional input args
 if ~isempty(varargin)
@@ -104,16 +108,16 @@ end
 clc;
 
 % user message
-disp([char(10), 'Called SFGmain (the main experimental function) with input args: ',...
-    char(10), 'subNum: ', num2str(subNum),...
-    char(10), 'stimArrayFile:', stimArrayFile,...
-    char(10), 'blockNo: ', num2str(blockNo)]);
+disp([newline, 'Called SFGmain (the main experimental function) with input args: ',...
+    newline, 'subNum: ', num2str(subNum),...
+    newline, 'stimArrayFile:', stimArrayFile,...
+    newline, 'blockNo: ', num2str(blockNo)]);
 
 
 %% Load/set params, stimuli, check for conflicts
 
 % user message
-disp([char(10), 'Loading params and stimuli, checking ',...
+disp([newline, 'Loading params and stimuli, checking ',...
     'for existing files for the subject']);
 
 % a function handles all stimulus sorting to blocks and potential conflicts
@@ -133,7 +137,7 @@ if returnFlag
 end
 
 % user message
-disp([char(10), 'Ready to start the experiment']);
+disp([newline, 'Ready to start the experiment']);
 
 
 %% Audio parameters for PsychPortAudio
@@ -143,7 +147,7 @@ disp([char(10), 'Ready to start the experiment']);
 fs = cell2mat(stimArray(:, 8));
 % sanity check - there should be only one fs value
 if ~isequal(length(unique(fs)), 1)
-    error([char(10), 'There are multiple different sampling rates ',...
+    error([newline, 'There are multiple different sampling rates ',...
         'specified in the stimulus array!']);
 else
     fs = unique(fs);
@@ -168,7 +172,7 @@ reqLatencyClass = 2;
 nrChannels = 2;
 
 % user message
-disp([char(10), 'Set audio parameters']);
+disp([newline, 'Set audio parameters']);
 
 
 %% Stimulus features for triggers + logging
@@ -181,7 +185,7 @@ figStartCord = cell2mat(stimArray(:, 9));
 % we check the length of stimuli + sanity check
 stimLength = cell2mat(stimArray(:, 2));
 if ~isequal(length(unique(stimLength)), 1)
-    error([char(10), 'There are multiple different stimulus length values ',...
+    error([newline, 'There are multiple different stimulus length values ',...
         'specified in the stimulus array!']);
 else
     stimLength = unique(stimLength);
@@ -190,14 +194,14 @@ end
 % we also check the length of a cord + sanity check
 chordLength = cell2mat(stimArray(:, 3));
 if ~isequal(length(unique(chordLength)), 1)
-    error([char(10), 'There are multiple different chord length values ',...
+    error([newline, 'There are multiple different chord length values ',...
         'specified in the stimulus array!']);
 else
     chordLength = unique(chordLength);
 end
 
 % user message
-disp([char(10), 'Extracted stimulus features']);
+disp([newline, 'Extracted stimulus features']);
 
 
 %% Triggers
@@ -317,12 +321,15 @@ Screen('BlendFunction', qMarkWin, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
 Screen('TextSize', qMarkWin, 50);
 Screen('DrawText', qMarkWin, '?', xCenter-15, yCenter-15, textColor);
 
+okRespWin = createTextFeedbackOffscreenWindow('Jó válasz', win, backGroundColor, rect);
+badRespWin = createTextFeedbackOffscreenWindow('Rossz válasz', win, backGroundColor, rect);
+
 % open PsychPortAudio device for playback
 pahandle = PsychPortAudio('Open', device, mode, reqLatencyClass, fs, nrChannels);
 
 % get and display device status
 pahandleStatus = PsychPortAudio('GetStatus', pahandle);
-disp([char(10), 'PsychPortAudio device status: ']);
+disp([newline, 'PsychPortAudio device status: ']);
 disp(pahandleStatus);
 
 % initial start & stop of audio device to avoid potential initial latencies
@@ -361,7 +368,7 @@ if triggers
 end
 
 % user message
-disp([char(10), 'Initialized psychtoolbox basics, opened window, ',...
+disp([newline, 'Initialized psychtoolbox basics, opened window, ',...
     'started PsychPortAudio device']);
 
 
@@ -381,7 +388,7 @@ DrawFormattedText(win, instrText, 'center', 'center', textColor);
 Screen('Flip', win);
 
 % user message
-disp([char(10), 'Showing the instructions text right now...']);
+disp([newline, 'Showing the instructions text right now...']);
 
 % wait for key press to start
 while 1
@@ -416,7 +423,7 @@ if abortFlag
 end
 
 % user message
-disp([char(10), 'Subject signalled she/he is ready, we go ahead with the task']);
+disp([newline, 'Subject signalled she/he is ready, we go ahead with the task']);
 
 %% Preload all stimuli
 
@@ -454,7 +461,7 @@ for block = startBlockNo:blockNo
     trialCounterForBlock = 0;    
     
     % user message
-    disp([char(10), 'Buffered all stimuli for block ', num2str(block),... 
+    disp([newline, 'Buffered all stimuli for block ', num2str(block),... 
         ', showing block start message']);    
      
     % block starting text
@@ -677,6 +684,7 @@ for block = startBlockNo:blockNo
                     disp('No reversal will occur: we are at the minimum available step size.');
                 end
             end
+            Screen('CopyWindow', okRespWin, win);
         elseif (detectedDirection(trial)==1 && desiredStepSize < 0) || (detectedDirection(trial)==-1 && desiredStepSize > 0)
             disp('Subject made an error');
             acc(trial) = 0;
@@ -698,6 +706,7 @@ for block = startBlockNo:blockNo
                     disp('No reversal will occur: we are at the maximum available step size.');
                 end
             end
+            Screen('CopyWindow', badRespWin, win);
         end
         % response time
         if ~isnan(respTime(trial))
@@ -741,9 +750,9 @@ for block = startBlockNo:blockNo
     blockFalseAlarm = sum(acc(trial-trialCounterForBlock+1:trial)==0 &... 
         stepSizes(trial-trialCounterForBlock+1:trial)==0)/trialCounterForBlock*100;
     % user messages
-    disp([char(10), char(10), 'Block no. ', num2str(block), ' has ended,'... 
+    disp([newline, newline, 'Block no. ', num2str(block), ' has ended,'... 
         'showing block-ending text to participant']);
-    disp([char(10), 'Overall accuracy in block was ', num2str(blockAcc),... 
+    disp([newline, 'Overall accuracy in block was ', num2str(blockAcc),... 
         '%; false alarm rate was ', num2str(blockFalseAlarm), '%']);    
     
     
@@ -796,7 +805,7 @@ for block = startBlockNo:blockNo
     elseif (block ~= blockNo) && ismembertol(block, breakBlocks)
         
         % user message
-        disp([char(10), 'There is a BREAK now!']);
+        disp([newline, 'There is a BREAK now!']);
         disp('Only the experimenter can start the next block - press "SPACE" when ready');
         
         % block ending text
@@ -844,7 +853,7 @@ for block = startBlockNo:blockNo
     elseif block == blockNo
  
         % user message
-        disp([char(10), 'The task has ended!!!']);
+        disp([newline, 'The task has ended!!!']);
         
         % block ending text
         blockEndText = ['Vége a feladatnak!\n',...

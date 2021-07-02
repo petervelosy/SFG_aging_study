@@ -1,6 +1,8 @@
 function [pahandle, screenNumber, KbIdxSub, KbIdxExp] = initPTB(fs)
     %% Psychtoolbox initialization
     
+    disp([newline, 'Initializing Psychtoolbox, PsychPortAudio...']);
+    
     [pahandle] = initPTBAudio(fs);
 
     % General init (AssertOpenGL, 'UnifyKeyNames')
