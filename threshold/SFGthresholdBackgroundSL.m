@@ -175,13 +175,13 @@ snrLogLevels = log(snrLevels);
 % settings for quest 
 qopt = struct;
 % -0.61 -> SNR ~0.54
-qopt.tGuess = -0.61;  % prior threshold guess, -0.84 equals an SNR of ~0.43 (backgroundlevel=21 at a coherence level of 9 and stimopt.toneComp=20), we start with lot of added noise
+qopt.tGuess = (max(snrLogLevels)+min(snrLogLevels))/2;  % prior threshold guess, -0.84 equals an SNR of ~0.43 (backgroundlevel=21 at a coherence level of 9 and stimopt.toneComp=20), we start with lot of added noise
 qopt.tGuessSd = 5;  % SD of prior guess
 qopt.beta = 3.5;  % Weibull steepness, 3.5 is the default used for a wide range of stimuli 
 qopt.delta = 0.02;  % ratio of "blind" / "accidental" responses
 qopt.gamma = 0.5;  % ratio of correct responses without stimulus present
 qopt.grain = 0.001;  % internal table quantization
-qopt.range = 7;  % range of possible values
+qopt.range = max(snrLogLevels)-min(snrLogLevels);  % range of possible values
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 qopt.pThreshold = 0.75;  % threshold of interest
@@ -194,7 +194,7 @@ q = QuestCreate(qopt.tGuess, qopt.tGuessSd, qopt.pThreshold,...
 % the first few trials are not used for updating the Quest object (due to
 % unfamiliarity with the task in the beginning), we set a variable
 % controlling the number of trials to ignore:
-qopt.ignoreTrials = 3;  % must be > 0 
+qopt.ignoreTrials = 1;  % must be > 0 
 
 % maximum number of extra trials when Quest estimate SD is too large
 trialExtraMax = 20;
@@ -384,7 +384,7 @@ try
 
             % do not update Quest on a missing response
             if ~isnan(figDetect(trialN-1))
-                questResp = figDetect(trialN-1);
+                questResp = acc(trialN-1);
                 q = QuestUpdate(q, lastIntensity, questResp);
             end
 
@@ -527,7 +527,7 @@ try
 
     % do not update Quest on a missing response
     if ~isnan(figDetect(trialN))
-        questResp = figDetect(trialN);
+        questResp = acc(trialN);
         q = QuestUpdate(q, tTest, questResp);
     end
 
