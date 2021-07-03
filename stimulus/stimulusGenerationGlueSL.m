@@ -1,4 +1,4 @@
-function stimArrayFile = stimulusGenerationGlueSL(subNum, group, varargin)
+function stimArrayFile = stimulusGenerationGlueSL(subNum, varargin)
 %% Function glueing stimulus generation steps together for subject-specific stimuli
 %
 % USAGE: stimArrayFile = stimulusGenerationGlueThresholded(subNum, trialMax=[1/stimType], loudnessEq=true)
@@ -14,7 +14,6 @@ function stimArrayFile = stimulusGenerationGlueSL(subNum, group, varargin)
 % 
 % Mandatory input:
 % subNum            - Numeric value, one of 1:999. Subject number.
-% group             - String, one of 'Young', 'Elderly', 'ElderlyHI'.
 %
 % Optional inputs:
 % trialMax          - Numeric value, one of 12:1200. Number of trials to 
@@ -52,15 +51,12 @@ function stimArrayFile = stimulusGenerationGlueSL(subNum, group, varargin)
 
 % check number of args
 if ~ismembertol(nargin, 1:3)
-    error(['Function "stimulusGenerationGlueThresholded" requires input arg "subNum" and "group" ',...
+    error(['Function "stimulusGenerationGlueThresholded" requires input arg "subNum" ',...
         'while input args "trialMax" and "loudnessEq" are optional!']);
 end
 % check mandatory arg
 if ~ismembertol(subNum, 1:999)
     error('Input arg "subNum" should be one of 1:999!');
-end
-if ~ismember(group, ['Young', 'Elderly', 'ElderlyHI'])
-    error('Input arg "group" should be one of "Young", "Elderly", "ElderlyHI"!');
 end
 % check optional args
 if ~isempty(varargin)
@@ -90,15 +86,15 @@ if ~exist(subDirName, 'dir')
     mkDir(subDirName);
 end
 
-% Load experiment params:
-paramFunctionName = strcat('experimentParams', group);
-expopt = feval(paramFunctionName);
-
 % get file name for SFGthresholdBackground results - exact file name contains unknown time stamp
 backgrResFile = dir([subDirName, '/thresholdBackgroundSL_sub', num2str(subNum), '*.mat']);
 backgrResFilePath = [backgrResFile.folder, '/', backgrResFile.name];
 % load results from background-thresholding
 backgrRes = load(backgrResFilePath);
+
+% Load experiment params:
+paramFunctionName = strcat('experimentParams', backgrRes.group);
+expopt = feval(paramFunctionName);
 
 % coherence value to be used throughout all trials
 baseCoherence = expopt.figureCoh;

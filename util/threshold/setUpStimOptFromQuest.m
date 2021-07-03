@@ -9,8 +9,11 @@ function [stimopt, lastIntensity, tTest] = setUpStimOptFromQuest(q, snrLogLevels
 
     % ask Quest object about optimal log SNR - for setting toneComp
     tTest=QuestMean(q); 
+    disp(['tTest=', num2str(tTest)]);
+    
     % find the closest SNR level we have
     [~, closestSnrIdx] = min(abs(snrLogLevels-tTest));
+    disp(['closestSnrIdx=', num2str(closestSnrIdx)]);
     % get corresponding intensity (log SNR) - will be used for Quest update
     lastIntensity = snrLogLevels(closestSnrIdx);
     % update stimopt accordingly - we get the required number of background

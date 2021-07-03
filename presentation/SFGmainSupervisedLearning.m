@@ -56,7 +56,7 @@ end
 if ~ismembertol(subNum, 1:999)
     error('Input arg "subNum" should be between 1 - 999!');
 end
-if isempty(feedback)
+if ~exist('feedback', 'var')
     feedback = false;
 end
 % check and sort optional input args
@@ -435,6 +435,8 @@ for i = 1:size(stimArray,1)
     buffer(end+1) = PsychPortAudio('CreateBuffer', [], audioData');
 end
 
+feedbackDisplayTimeSec = 1;
+
 % Exit conditions:
 minTrialCount = expopt.expopt.minTrialCountPerBlock;
 minReversalCount = expopt.expopt.minReversalCountPerBlock;
@@ -522,7 +524,6 @@ for block = startBlockNo:blockNo
     stepSize = initialStepSize;
     hitsInARow = 0;
     missesInARow = 0;
-    direction = 0;
     staircaseTendency = 0;
     
     % TODO move up
@@ -696,6 +697,7 @@ for block = startBlockNo:blockNo
                 Screen('CopyWindow', okRespWin, win);
                 Screen('DrawingFinished', win);
                 Screen('Flip', win);
+                WaitSecs(feedbackDisplayTimeSec);
             end
         elseif (detectedDirection(trial)==1 && desiredStepSize < 0) || (detectedDirection(trial)==-1 && desiredStepSize > 0)
             disp('Subject made an error');
@@ -722,6 +724,7 @@ for block = startBlockNo:blockNo
                 Screen('CopyWindow', badRespWin, win);
                 Screen('DrawingFinished', win);
                 Screen('Flip', win);
+                WaitSecs(feedbackDisplayTimeSec);
             end
         end
         % response time
