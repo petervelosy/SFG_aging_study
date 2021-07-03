@@ -1,4 +1,4 @@
-function stimArrayFile = stimulusGenerationGlueSupervisedLearning(subNum, group, varargin)
+function stimArrayFile = stimulusGenerationGlueSL(subNum, group, varargin)
 %% Function glueing stimulus generation steps together for subject-specific stimuli
 %
 % USAGE: stimArrayFile = stimulusGenerationGlueThresholded(subNum, trialMax=[1/stimType], loudnessEq=true)
@@ -198,7 +198,7 @@ for b = 1:length(backgrValues)
 end  % for b
 
 % user message
-disp([char(10), 'Generated stimuli for all requested parameter values']);
+disp([newline, 'Generated stimuli for all requested parameter values']);
 
 
 %% Aggregate stimuli across types
