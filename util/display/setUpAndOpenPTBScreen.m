@@ -1,6 +1,15 @@
-function [win, rect, ifi] = setUpAndOpenPTBScreen(screenNumber, backGroundColor)
+function [win, rect, ifi] = setUpAndOpenPTBScreen(screenNumber, backGroundColor, smallScreen)
+
+    if ~exist('smallScreen', 'var')
+        smallScreen = false;
+    end
+
     % open stimulus window
-    [win, rect] = Screen('OpenWindow', screenNumber, backGroundColor);
+    if smallScreen
+        [win, rect] = Screen('OpenWindow', screenNumber, backGroundColor, [0,0,100,100]);
+    else
+        [win, rect] = Screen('OpenWindow', screenNumber, backGroundColor);
+    end
 
     % query frame duration for window
     ifi = Screen('GetFlipInterval', win);

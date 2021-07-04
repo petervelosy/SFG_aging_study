@@ -83,7 +83,7 @@ subDirName = ['subject', num2str(subNum)];
 
 % check if subject folder already exists, complain if not
 if ~exist(subDirName, 'dir')
-    mkDir(subDirName);
+    mkdir(subDirName);
 end
 
 % get file name for SFGthresholdBackground results - exact file name contains unknown time stamp
