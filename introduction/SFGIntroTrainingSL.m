@@ -79,7 +79,7 @@ end
 
 % easily recognizable version 
 stimoptFigure = stimopt;
-stimoptFigure.figureCoh = 18;
+stimoptFigure.figureCoh = 14;
 
 % ask user to verify coherence level of figure / provide a different
 % value
