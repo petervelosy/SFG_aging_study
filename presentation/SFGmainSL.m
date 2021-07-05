@@ -282,12 +282,12 @@ disp([newline, 'Initialized psychtoolbox basics, opened window, ',...
 %% Instructions phase
 
 % instructions text
-instrText = ['A feladat ugyanaz lesz, mint az előző blokkok során - \n',... 
+instrText = double(['A feladat ugyanaz lesz, mint az előző blokkok során - \n',... 
     'jelezze, hogy a hangmintában emelkedő vagy ereszkedő hangsort hall.\n\n',...
     'Emelkedő hangsor a hangmintában - "', KbName(keys.figPresent), '" billentyű. \n',... 
     'Ereszkedő hangsor a hangmintában - "' ,KbName(keys.figAbsent), '" billentyű. \n\n',...
     'Mindig akkor válaszoljon, amikor megjelenik a kérdőjel.\n\n',...
-    'Nyomja meg a SPACE billentyűt ha készen áll!'];
+    'Nyomja meg a SPACE billentyűt ha készen áll!']);
 
 % write instructions to text
 Screen('FillRect', win, backGroundColor);
@@ -369,8 +369,8 @@ for block = startBlockNo:blockNo
         ', showing block start message']);    
      
     % block starting text
-    blockStartText = ['Kezdhetjük a(z) ', num2str(block), '. blokkot,\n\n\n',... 
-            'Nyomja meg a SPACE billentyűt ha készen áll!'];
+    blockStartText = double(['Kezdhetjük a(z) ', num2str(block), '. blokkot,\n\n\n',... 
+            'Nyomja meg a SPACE billentyűt ha készen áll!']);
     
     % uniform background
     Screen('FillRect', win, backGroundColor);
@@ -672,9 +672,9 @@ for block = startBlockNo:blockNo
     if (block ~= blockNo) && ~ismembertol(block, breakBlocks)        
         
         % block ending text
-        blockEndText = ['Vége a(z) ', num2str(block), '. blokknak!\n\n\n',... 
+        blockEndText = double(['Vége a(z) ', num2str(block), '. blokknak!\n\n\n',... 
                 'Ebben a blokkban a próbák ', num2str(round(blockAcc, 2)), '%-ra adott helyes választ.\n\n\n',... 
-                'Nyomja meg a SPACE billentyűt ha készen áll a következő blokkra!'];
+                'Nyomja meg a SPACE billentyűt ha készen áll a következő blokkra!']);
         % uniform background
         Screen('FillRect', win, backGroundColor);
         % draw block-starting text
@@ -715,9 +715,9 @@ for block = startBlockNo:blockNo
         disp('Only the experimenter can start the next block - press "SPACE" when ready');
         
         % block ending text
-        blockEndText = ['Vége a(z) ', num2str(block), '. blokknak!\n\n\n',... 
+        blockEndText = double(['Vége a(z) ', num2str(block), '. blokknak!\n\n\n',... 
                 'Ebben a blokkban a próbák ', num2str(round(blockAcc, 2)), '%-ra adott helyes választ.\n\n\n',... 
-                'Most tartunk egy rövid szünetet, a kísérletvezető hamarosan beszél Önnel.'];
+                'Most tartunk egy rövid szünetet, a kísérletvezető hamarosan beszél Önnel.']);
         % uniform background
         Screen('FillRect', win, backGroundColor);
         % draw block-starting text
@@ -757,9 +757,9 @@ for block = startBlockNo:blockNo
         disp([newline, 'The task has ended!!!']);
         
         % block ending text
-        blockEndText = ['Vége a feladatnak!\n',...
+        blockEndText = double(['Vége a feladatnak!\n',...
             'Az utolsó blokkban a próbák ', num2str(round(blockAcc, 2)), '%-ra adott helyes választ.\n\n',...
-            'Köszönjük a részvételt!'];       
+            'Köszönjük a részvételt!']);       
         % uniform background
         Screen('FillRect', win, backGroundColor);
         % draw block-starting text

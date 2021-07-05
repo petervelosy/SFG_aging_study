@@ -9,5 +9,5 @@ stimulusGenerationGlueSL(SUBJECT_ID)
 
 ------------------------------------
 
-SFGmainSupervisedLearning(1, false, DEVMODE, 'no') - teszt 
-SFGmainSupervisedLearning(1, true, DEVMODE, 'no') - training with feedback
+SFGmainSL(1, false, DEVMODE, 'no') - teszt 
+SFGmainSL(1, true, DEVMODE, 'no') - training with feedback

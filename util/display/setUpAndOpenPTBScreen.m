@@ -10,7 +10,7 @@ function [win, rect, ifi] = setUpAndOpenPTBScreen(screenNumber, backGroundColor,
     else
         [win, rect] = Screen('OpenWindow', screenNumber, backGroundColor);
     end
-
+    
     % query frame duration for window
     ifi = Screen('GetFlipInterval', win);
     % set up alpha-blending for smooth (anti-aliased) lines

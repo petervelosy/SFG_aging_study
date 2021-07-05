@@ -1,11 +1,6 @@
 function SFGthresholdBackgroundSL(subNum, group, varargin)
 Screen('Preference', 'SkipSyncTests', 1); % TODO remove this, add devmode
 
-% TODO SNR min-max
-% TODO set stepSize (70)
-% TODO development mode (do not restrict keyboard or mouse input, skip sync
-% tests)
-
 %% Quest threshold for SFG stimuli aimed at estimating the effect of background notes
 %
 % USAGE: SFGthresholdBackground(subNum, stimopt=SFGparamsThreshold, trialMax=80, loudnessEq=true)
@@ -305,13 +300,13 @@ try
     %% Instructions phase
 
     % instructions text
-    instrText = ['Ugyanaz lesz a feladata, mint az előzőekben, de már nem kap visszajelzést a válasz helyességéről. \n\n',...
+    instrText = double(['Ugyanaz lesz a feladata, mint az előzőekben, de már nem kap visszajelzést a válasz helyességéről. \n\n',...
         'Összesen kb. ', num2str(trialMax+trialExtraMax/2), ' hangmintát fogunk lejátszani Önnek, \n',...
         'a feladat kb. ', num2str(round(trialMax/9)), ' percen át fog tartani.\n\n',...
         'Hangmintában van emelkedő hangsor  -  "', KbName(keys.figAsc), '" billentyű. \n',... 
         'Hangmintában nincs emelkedő hangsor  -  "' ,KbName(keys.figDesc), '" billentyű. \n\n',...
         'Mindig akkor válaszoljon, amikor megjelenik a kérdőjel.\n\n',...
-        'Nyomja meg a SPACE billentyűt ha készen áll!'];   
+        'Nyomja meg a SPACE billentyűt ha készen áll!']);   
 
     % write instructions to text
     Screen('FillRect', win, backGroundColor);
