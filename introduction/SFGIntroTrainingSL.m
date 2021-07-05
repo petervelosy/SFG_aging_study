@@ -256,7 +256,7 @@ acc = [];
 cumAcc = 0;
 
 index = 1;
-while ~(stimoptFigureAsc.figureStepS == targetAbsStepSize && index >= minTrialsPerStepSize && cumAcc >= minCumAcc)  % until exit condition is met or abort is requested
+while ~(stimoptFigureAsc.figureStepS == targetAbsStepSize && index > minTrialsPerStepSize && cumAcc >= minCumAcc)  % until exit condition is met or abort is requested
     
     % display fixation cross
     % background with fixation cross, get trial start timestamp
