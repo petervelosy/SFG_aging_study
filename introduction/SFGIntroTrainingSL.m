@@ -1,7 +1,4 @@
 function SFGIntroTrainingSL(subNum, devMode, stimopt, loudnessEq)
-if devMode
-    Screen('Preference', 'SkipSyncTests', 1);
-end
 %% Function to familiarize subjects with SFG stimuli
 %
 % USAGE: SFGintro(subNum, stimopt=SFGparamsIntro, loudnessEq=true)

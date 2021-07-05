@@ -1,5 +1,4 @@
-function SFGmainSupervisedLearning(subNum, feedback, varargin)
-Screen('Preference', 'SkipSyncTests', 1);  % TODO remove this
+function SFGmainSupervisedLearning(subNum, feedback, devMode, varargin)
 %% Stochastic figure-ground experiment - main experimental script
 %
 % USAGE: SFGmain(subNum, stimArrayFile=./subjectXX/stimArray*.mat, blockNo=10, triggers='yes')
@@ -16,6 +15,7 @@ Screen('Preference', 'SkipSyncTests', 1);  % TODO remove this
 % Mandatory input:
 % subNum        - Numeric value, one of 1:999. Subject number.
 % feedback      - true = training mode, false = test mode
+% devMode       - Development mode
 %
 % Optional inputs:
 % stimArrayFile - Char array, path to *.mat file containing the cell array 
@@ -49,8 +49,8 @@ Screen('Preference', 'SkipSyncTests', 1);  % TODO remove this
 %% Input checks
 
 % check no. of input args
-if ~ismembertol(nargin, 1:4)
-    error('Function SFGmain requires input arg "subNum" while input args "stimArrayFile", "blockNo" and "triggers" are optional!');
+if ~ismembertol(nargin, 1:6)
+    error('Function SFGmain requires input arg "subNum" while input args "feedback", "devMode", "stimArrayFile", "blockNo" and "triggers" are optional!');
 end
 % check mandatory arg - subject number
 if ~ismembertol(subNum, 1:999)
@@ -58,6 +58,9 @@ if ~ismembertol(subNum, 1:999)
 end
 if ~exist('feedback', 'var')
     feedback = false;
+end
+if ~exist('devMode', 'var')
+    devMode = false;
 end
 % check and sort optional input args
 if ~isempty(varargin)
@@ -90,7 +93,7 @@ if ~exist('blockNo', 'var')
     blockNo = 2; % TODO
 end
 if ~exist('triggers', 'var')
-    triggers = 'no'; % TODO undo this after setting up triggers
+    triggers = 'yes';
 end
 
 % turn input arg "triggers" into boolean
@@ -139,45 +142,9 @@ end
 % user message
 disp([newline, 'Ready to start the experiment']);
 
-
-%% Audio parameters for PsychPortAudio
-
-% audio params
-% sampling rate is derived from stimuli
-fs = cell2mat(stimArray(:, 8));
-% sanity check - there should be only one fs value
-if ~isequal(length(unique(fs)), 1)
-    error([newline, 'There are multiple different sampling rates ',...
-        'specified in the stimulus array!']);
-else
-    fs = unique(fs);
-end
-
-% get correct audio device
-device = [];  % system default is our default as well
-% we only change audio device in the lab, when we see the correct audio
-% card
-tmpDevices = PsychPortAudio('GetDevices');
-for i = 1:numel(tmpDevices)
-    if strcmp(tmpDevices(i).DeviceName, 'ESI Juli@: ICE1724 (hw:2,0)')
-        device = tmpDevices(i).DeviceIndex;
-    end
-end
-
-% mode is simple playback
-mode = 1;
-% reqlatencyclass is set to low-latency
-reqLatencyClass = 2;
-% 2 channels output
-nrChannels = 2;
-
-% user message
-disp([newline, 'Set audio parameters']);
-
-
 %% Stimulus features for triggers + logging
 
-% get figure presence/absence variable for stimuli
+% get step size variable for stimuli
 stepSizes = cell2mat(stimArray(:, 7));
 % figure / added noise start and end time in terms of chords
 figStartCord = cell2mat(stimArray(:, 9));
@@ -213,23 +180,23 @@ trig.playbackStart = 210;
 trig.respPresent = 220;
 trig.respAbsent = 230;
 trig.l = 1000; % trigger length in microseconds
-trig.blockStart = 100;
+trig.blockStart = 199;
 
 % triggers for stimulus types, based on the number of unique stimulus types
 % we assume that stimTypes is a cell array (with headers) that contains the 
 % unique stimulus feature combinations, with an index for each combination 
 % in the last column
 uniqueStimTypes = cell2mat(stimTypes(2:end,end));
-if length(uniqueStimTypes) > 4900
+if length(uniqueStimTypes) > 198
     error('Too many stimulus types for properly triggering them');
 end
-% triggers for stimulus types are integers in the range 151-199
-trigTypes = uniqueStimTypes+150;
+% triggers for stimulus types are integers in the range 1-198
+trigTypes = uniqueStimTypes;
 % add trigger info to stimTypes cell array as an extra column
 stimTypes = [stimTypes, [{'trigger'}; num2cell(trigTypes)]];
 
 % create triggers for stimulus types, for all trials
-trig.stimType = cell2mat(stimArray(:, 13))+150;
+trig.stimType = cell2mat(stimArray(:, 13));
 
 % add triggers to logging / results variable
 % logVar(2:end, strcmp(logHeader, 'trigger')) = num2cell(trig.stimType);
@@ -241,20 +208,8 @@ disp([newline, 'Set up triggers']);
 
 %% Psychtoolbox initialization
 
-% General init (AssertOpenGL, 'UnifyKeyNames')
-PsychDefaultSetup(1);
-
-% init PsychPortAudio with pushing for lowest possible latency
-InitializePsychSound(1);
-
-% Keyboard params - names
-KbNameSub = 'Logitech USB Keyboard';
-KbNameExp = 'CASUE USB KB';
-% detect attached devices
-[keyboardIndices, productNames, ~] = GetKeyboardIndices;
-% define subject's and experimenter keyboards
-KbIdxSub = keyboardIndices(ismember(productNames, KbNameSub));
-KbIdxExp = keyboardIndices(ismember(productNames, KbNameExp));
+fs = stimArray{1,8}; % take sample rate from the first stimulus
+[pahandle, screenNumber, KbIdxSub, KbIdxExp] = initPTB(fs, devMode);
 
 % Define the specific keys we use
 keys = struct;
@@ -269,75 +224,25 @@ else
     keys.figAbsent = KbName('l');
 end
 
-% restrict keys to the ones we use
-keysFields = fieldnames(keys);
-keysVector = zeros(1, length(keysFields));
-for f = 1:length(keysFields)
-    keysVector(f) = keys.(keysFields{f});
+if ~devMode
+    setUpKeyRestrictions(keys);
 end
-RestrictKeysForKbCheck(keysVector);
-
-% Force costly mex functions into memory to avoid latency later on
-GetSecs; WaitSecs(0.1); KbCheck();
 
 % screen params, screen selection
 backGroundColor = [0 0 0];
 textColor = [255 255 255];
-screens=Screen('Screens');
-screenNumber=max(screens);  % look into XOrgConfCreator and XOrgConfSelector 
+% smallScreen = devMode; TODO
+smallScreen = false;
+[win, rect, ifi] = setUpAndOpenPTBScreen(screenNumber, backGroundColor, smallScreen);
 
-% open stimulus window
-[win, rect] = Screen('OpenWindow', screenNumber, backGroundColor, [], [], [], [], [], []);
-
-% query frame duration for window
-ifi = Screen('GetFlipInterval', win);
-% set up alpha-blending for smooth (anti-aliased) lines
-Screen('BlendFunction', win, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
-% Setup the text type for the window
-Screen('TextFont', win, 'Ariel');
-Screen('TextSize', win, 30);
-
-% set up a central fixation cross into a texture / offscreen window
-% get the centre coordinate of the window
 [xCenter, yCenter] = RectCenter(rect);
-% Here we set the size of the arms of our fixation cross
-fixCrossDimPix = 40;
-% set the coordinates
-xCoords = [-fixCrossDimPix fixCrossDimPix 0 0];
-yCoords = [0 0 -fixCrossDimPix fixCrossDimPix];
-allCoords = [xCoords; yCoords];
-% set the line width for our fixation cross
-lineWidthPix = 4;
-% command to draw the fixation cross
-fixCrossWin = Screen('OpenOffscreenWindow', win, backGroundColor, rect);
-Screen('BlendFunction', fixCrossWin, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
-Screen('DrawLines', fixCrossWin, allCoords,...
-    lineWidthPix, textColor, [xCenter yCenter], 2);
 
-% set up the question mark (stimulus marking response period) into a
-% texture / offscreen window
-qMarkWin = Screen('OpenOffscreenWindow', win, backGroundColor, rect);
-Screen('BlendFunction', qMarkWin, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
-Screen('TextSize', qMarkWin, 50);
-Screen('DrawText', qMarkWin, '?', xCenter-15, yCenter-15, textColor);
+fixCrossWin = createFixationCrossOffscreenWindow(win, backGroundColor, textColor, rect);
+qMarkWin = createQuestionMarkOffscreenWindow(win, backGroundColor, textColor, rect);
 
+% TODO refactor to take 'rect' instead of 'xCenter' and 'yCenter'
 okRespWin = createTextFeedbackOffscreenWindow('Jó válasz', win, backGroundColor, rect, xCenter, yCenter, textColor);
 badRespWin = createTextFeedbackOffscreenWindow('Rossz válasz', win, backGroundColor, rect, xCenter, yCenter, textColor);
-
-% open PsychPortAudio device for playback
-pahandle = PsychPortAudio('Open', device, mode, reqLatencyClass, fs, nrChannels);
-
-% get and display device status
-pahandleStatus = PsychPortAudio('GetStatus', pahandle);
-disp([newline, 'PsychPortAudio device status: ']);
-disp(pahandleStatus);
-
-% initial start & stop of audio device to avoid potential initial latencies
-tmpSound = zeros(2, fs/10);  % silence
-tmpBuffer = PsychPortAudio('CreateBuffer', [], tmpSound);  % create buffer
-PsychPortAudio('FillBuffer', pahandle, tmpBuffer);  % fill the buffer of audio device with silence
-PsychPortAudio('Start', pahandle, 1);  % start immediately
-PsychPortAudio('Stop', pahandle, 1);  % stop when playback is over
 
 % set random ITI between 500-800 ms, with round 100 ms values
 iti = (randi(4, [size(stimArray, 1) 1])+4)/10;  % in secs
@@ -352,10 +257,12 @@ acc = detectedDirection;
 
 % set flag for aborting experiment
 abortFlag = 0;
-% hide mouse
-% HideCursor(screenNumber);
-% suppress keyboard input to command window
-% ListenChar(-1);
+if devMode
+    % hide mouse
+    HideCursor(screenNumber);
+    % suppress keyboard input to command window
+    ListenChar(-1);
+end
 % realtime priority
 Priority(1);
 
@@ -413,12 +320,7 @@ if abortFlag
     if triggers
         ppdev_mex('Close', 1);
     end
-    ListenChar(0);
-    Priority(0);
-    RestrictKeysForKbCheck([]);
-    PsychPortAudio('Close');
-    Screen('CloseAll');
-    ShowCursor(screenNumber);
+    closePTB(screenNumber);
     return;
 end
 
@@ -498,12 +400,7 @@ for block = startBlockNo:blockNo
         if triggers
             ppdev_mex('Close', 1);
         end
-        ListenChar(0);
-        Priority(0);
-        RestrictKeysForKbCheck([]);
-        PsychPortAudio('Close');
-        Screen('CloseAll');
-        ShowCursor(screenNumber);
+        closePTB(screenNumber);
         return;
     end    
     
@@ -529,7 +426,7 @@ for block = startBlockNo:blockNo
     % TODO move up
     subDirName = ['subject', num2str(subNum)];
     
-    % get file name for SFGthresholdBackground results - exact file name contains unknown time stamp
+    % get file name for SFGthresholdBackgroundSL results - exact file name contains unknown time stamp
     backgrResFile = dir([subDirName, '/thresholdBackgroundSL_sub', num2str(subNum), '*.mat']);
     backgrResFilePath = [backgrResFile.folder, '/', backgrResFile.name];
     % load results from background-thresholding
@@ -566,7 +463,7 @@ for block = startBlockNo:blockNo
             % trial start trigger + trial type trigger
             lptwrite(1, trig.trialStart, trig.l);
             WaitSecs(0.005);
-            lptwrite(1, trig.stimType(trial), trig.l);
+            lptwrite(1, trig.stimType(stimIndex), trig.l);
         end
         
         % user message
@@ -648,12 +545,7 @@ for block = startBlockNo:blockNo
             if triggers
                 ppdev_mex('Close', 1);
             end
-            ListenChar(0);
-            Priority(0);
-            RestrictKeysForKbCheck([]);
-            PsychPortAudio('Close');
-            Screen('CloseAll');
-            ShowCursor(screenNumber);
+            closePTB(screenNumber);
             return;
         end        
         
@@ -745,13 +637,13 @@ for block = startBlockNo:blockNo
         figStartChord = cell2mat(stimArray(stimIndex, 9));
         figEndChord = cell2mat(stimArray(stimIndex, 10));
     
-        logVar(end+1, 1:end-1) = {subNum, block, trial, stimFileName, toneComp, ...
+        logVar(end+1, 1:end) = {subNum, block, trial, stimFileName, toneComp, ...
             figCoherence, figStepSize, figStartChord, figEndChord...
             acc(trial), detectedDirection(trial),... 
             respTime(trial), iti(trial),...
             trialStart, startTime-trialStart,... 
             (figStartCord(trial)-1)*chordLength,... 
-            respStart-startTime};
+            respStart-startTime, trig.stimType(stimIndex)};
         
         % save logging/results variable
         save(subLogF, 'logVar');
@@ -811,12 +703,7 @@ for block = startBlockNo:blockNo
             if triggers
                 ppdev_mex('Close', 1);
             end
-            ListenChar(0);
-            Priority(0);
-            RestrictKeysForKbCheck([]);
-            PsychPortAudio('Close');
-            Screen('CloseAll');
-            ShowCursor(screenNumber);
+            closePTB(screenNumber);
             return;
         end  
     
@@ -858,12 +745,7 @@ for block = startBlockNo:blockNo
             if triggers
                 ppdev_mex('Close', 1);
             end
-            ListenChar(0);
-            Priority(0);
-            RestrictKeysForKbCheck([]);
-            PsychPortAudio('Close');
-            Screen('CloseAll');
-            ShowCursor(screenNumber);
+            closePTB(screenNumber);
             return;
         end      
         

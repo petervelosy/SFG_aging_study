@@ -52,9 +52,9 @@ if ~ismembertol(blockNo, 1:50)
 end
 
 % user message
-disp([char(10), 'Called stim2blocks with input args: ',...
-    char(10), 'stimArrayFile:', stimArrayFile,...
-    char(10), 'blockNo: ', num2str(blockNo)]);
+disp([newline, 'Called stim2blocks with input args: ',...
+    newline, 'stimArrayFile:', stimArrayFile,...
+    newline, 'blockNo: ', num2str(blockNo)]);
 
 
 %% Loading stimuli, sanity checks
@@ -81,8 +81,8 @@ if mod(trialNo/blockNo, 1) ~= 0
 end
 
 % user message
-disp([char(10), 'Loaded stimuli array, found ', num2str(trialNo), ' trials, ',...
-    char(10), 'each block will contain ', num2str(trialNo/blockNo), ' trials']);
+disp([newline, 'Loaded stimuli array, found ', num2str(trialNo), ' trials, ',...
+    newline, 'each block will contain ', num2str(trialNo/blockNo), ' trials']);
 
 
 %% Get unique stimulus types
@@ -97,9 +97,9 @@ stepSizeValues = cell2mat(stimArray(:, 7));
 [stimTypes, ~, stimTypeIdx] = unique([backgrValues, cohValues, stepSizeValues], 'rows');
 
 % user message
-disp([char(10), 'There are ', num2str(size(stimTypes, 1)),... 
+disp([newline, 'There are ', num2str(size(stimTypes, 1)),... 
     ' different trial types  in the stimuli array ',... 
-    char(10), '(in terms of step size, ',...
+    newline, '(in terms of step size, ',...
     'duration and coherence).'])
 
 % check how many of each unique types we have
@@ -111,7 +111,7 @@ end
 % if there are different numbers for trial types, that is a problem, throw
 % error, otherwise report the number per type and per type per block
 if length(unique(stimTypesNumbers)) ~= 1
-    disp([char(10), 'Stimulus types in terms of duration, coherence and figure presence:']);
+    disp([newline, 'Stimulus types in terms of duration, coherence and figure presence:']);
     disp(stimTypes);
     disp('Number of trials per stimulus type:');
     disp(stimTypesNumbers);
@@ -119,8 +119,8 @@ if length(unique(stimTypesNumbers)) ~= 1
 else
     stimNoPerType = unique(stimTypesNumbers);
     stimNoPerTypePerBlock = unique(stimTypesNumbers)/blockNo;
-    disp([char(10), 'There are ', num2str(stimNoPerType), ' trials for each trial type, ',...
-        char(10), 'corresponding to ', num2str(stimNoPerTypePerBlock), ' trials for each type per block']);
+    disp([newline, 'There are ', num2str(stimNoPerType), ' trials for each trial type, ',...
+        newline, 'corresponding to ', num2str(stimNoPerTypePerBlock), ' trials for each type per block']);
 end
 
 %% Get exact trial indices for stimuli, return
@@ -129,7 +129,7 @@ end
 stimNoPerBlock = size(stimTypes, 1)*stimNoPerTypePerBlock;
 
 % user message
-disp([char(10), 'Randomized trial order within blocks, generated final trial indices vector']);
+disp([newline, 'Randomized trial order within blocks, generated final trial indices vector']);
 
 
 %% Transform stimTypes varialbe into human readable form 
@@ -137,7 +137,7 @@ disp([char(10), 'Randomized trial order within blocks, generated final trial ind
 % get cell array with headers
 stimTypes = [stimTypesHdr; num2cell([stimTypes, [1:size(stimTypes, 1)]'])];
 
-disp([char(10), 'Detailed information about stimulus types is stored in '...
+disp([newline, 'Detailed information about stimulus types is stored in '...
     'the stimTypes cell array']);
 
 

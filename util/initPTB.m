@@ -1,7 +1,15 @@
-function [pahandle, screenNumber, KbIdxSub, KbIdxExp] = initPTB(fs)
+function [pahandle, screenNumber, KbIdxSub, KbIdxExp] = initPTB(fs, devMode)
     %% Psychtoolbox initialization
     
     disp([newline, 'Initializing Psychtoolbox, PsychPortAudio...']);
+    
+    if ~exist('devMode', 'var')
+        devMode = false;
+    end
+    
+    if devMode
+        Screen('Preference', 'SkipSyncTests', 1);
+    end
     
     [pahandle] = initPTBAudio(fs);
 

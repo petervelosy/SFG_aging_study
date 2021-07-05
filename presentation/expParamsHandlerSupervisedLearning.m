@@ -77,10 +77,10 @@ if ~ismembertol(blockNo, 1:50)
 end
 
 % user message
-disp([char(10), 'Called paramsHandler function with input args: ',...
-    char(10), 'subNum: ', num2str(subNum),...
-    char(10), 'stimArrayFile:', stimArrayFile,...
-    char(10), 'blockNo: ', num2str(blockNo)]);
+disp([newline, 'Called paramsHandler function with input args: ',...
+    newline, 'subNum: ', num2str(subNum),...
+    newline, 'stimArrayFile:', stimArrayFile,...
+    newline, 'blockNo: ', num2str(blockNo)]);
 
 
 %% Check for previously created dir, settings and logs
@@ -137,21 +137,21 @@ if exist(dirN, 'dir')
 else
     % create a folder for subject if there was none
     mkdir(dirN);
-    disp([char(10), 'Created folder for subject at ', dirN]);
+    disp([newline, 'Created folder for subject at ', dirN]);
 end
 
 % user messages and inputs where necessary
 % depending on what we found (params + log files)
 if oldParamsFileFlag && ~oldParamsMatchFlag
-    disp([char(10), 'There is already a folder for subject ', num2str(subNum),...
+    disp([newline, 'There is already a folder for subject ', num2str(subNum),...
         ', and the parameters/settings file there is incompatible with ',... 
-        char(10), 'the input arguments supplied now! Maybe take a look?']);
-    inputRes = input([char(10), 'What should we do? (1 = Force the new settings, delete ',...
-        'old file(s) and start; ', char(10), '2 = Exit, so I can check the situation ',... 
-        '(maybe start the function again with a new subject number?)', char(10)]);
+        newline, 'the input arguments supplied now! Maybe take a look?']);
+    inputRes = input([newline, 'What should we do? (1 = Force the new settings, delete ',...
+        'old file(s) and start; ', newline, '2 = Exit, so I can check the situation ',... 
+        '(maybe start the function again with a new subject number?)', newline]);
     if isequal(inputRes, 1)
         oldParamsFileFlag = 0;
-        disp([char(10), 'Okay, we get rid of old file(s) and start the experiment!']);
+        disp([newline, 'Okay, we get rid of old file(s) and start the experiment!']);
     elseif isequal(inputRes, 2)
         returnFlag = 1;
         return
@@ -161,16 +161,16 @@ if oldParamsFileFlag && ~oldParamsMatchFlag
         return
     end
 elseif oldParamsFileFlag && oldParamsMatchFlag && ~logFileFlag
-    disp([char(10), 'There is already a folder for subject ', num2str(subNum),...
+    disp([newline, 'There is already a folder for subject ', num2str(subNum),...
         ', and the parameters/settings file there matches the input arguments ',... 
-        'supplied now. ', char(10), 'There is no valid log file though, so we could simply ',...
+        'supplied now. ', newline, 'There is no valid log file though, so we could simply ',...
         'start the experiment(?)']);
-    inputRes = input([char(10), 'What should we do? (1 = Simply start the ',...
-        'experiment; 2 = Exit, so I can take a better look at the situation)', char(10)]);
+    inputRes = input([newline, 'What should we do? (1 = Simply start the ',...
+        'experiment; 2 = Exit, so I can take a better look at the situation)', newline]);
     if isequal(inputRes, 1)
         oldParamsFileFlag = 0;
         oldParamsMatchFlag = 0;
-        disp([char(10), 'Great, we simply start the experiment!']);
+        disp([newline, 'Great, we simply start the experiment!']);
     elseif isequal(inputRes, 2)
         returnFlag = 1;
         return
@@ -180,14 +180,14 @@ elseif oldParamsFileFlag && oldParamsMatchFlag && ~logFileFlag
         return
     end    
 elseif oldParamsFileFlag && oldParamsMatchFlag && logFileFlag
-    disp([char(10), 'There is already a folder for subject ', num2str(subNum),...
+    disp([newline, 'There is already a folder for subject ', num2str(subNum),...
         ',the parameters/settings file there matches the input arguments ',... 
-        char(10), 'supplied now, and there is also a valid log file. We could ',...
+        newline, 'supplied now, and there is also a valid log file. We could ',...
         'continue with the experiment from where we left earlier.']);
-    inputRes = input([char(10), 'What should we do? (1 = Simply go on with the ',...
-        'experiment; 2 = Exit, so I can take a better look at the situation)', char(10)]);
+    inputRes = input([newline, 'What should we do? (1 = Simply go on with the ',...
+        'experiment; 2 = Exit, so I can take a better look at the situation)', newline]);
     if isequal(inputRes, 1)
-        disp([char(10), 'Great, we continue from where we left!']);
+        disp([newline, 'Great, we continue from where we left!']);
     elseif isequal(inputRes, 2)
         returnFlag = 1;
         return
@@ -206,7 +206,7 @@ end
 if ~oldParamsMatchFlag
 
     % user message
-    disp([char(10), 'We load the stimuli, perform checks on it and sort them to blocks with stim2blocksSupervisedLearning']);
+    disp([newline, 'We load the stimuli, perform checks on it and sort them to blocks with stim2blocksSupervisedLearning']);
     
     % get new random seed, set RNG
     randomseed = round(sum(c));
@@ -221,7 +221,7 @@ if ~oldParamsMatchFlag
 elseif oldParamsMatchFlag
     
     % user message
-    disp([char(10), 'We load the stimuli and use the old params/settings for sorting them to blocks']);    
+    disp([newline, 'We load the stimuli and use the old params/settings for sorting them to blocks']);    
     
     % loading the stimuli results in a variable stimArray, this is the same
     % as the one returned by stim2blocksSupervisedLearning
@@ -239,7 +239,7 @@ save(subParamsF, 'stimTypes', 'stimTypeIdx',...
     'randomseed', 'stimArrayFile', 'timestamp', 'blockNo', 'subNum');
 
 % user message
-disp([char(10), 'Loaded stimuli and saved out parameters/settings into params file ', subParamsF]); 
+disp([newline, 'Loaded stimuli and saved out parameters/settings into params file ', subParamsF]); 
 
 % attach stimulus type indices to stimulus array
 stimArray = [stimArray, num2cell(stimTypeIdx)];
@@ -249,7 +249,7 @@ stimArray = [stimArray, num2cell(stimTypeIdx)];
 % if there was no valid log file / logging variable, init one
 if ~logFileFlag
     % user message
-    disp([char(10), 'Initializing a logging variable']);
+    disp([newline, 'Initializing a logging variable']);
     % empty cell array, insert header
     logVar = cell(1, size(logHeader, 2));
     logVar(1, :) = logHeader;
@@ -284,18 +284,18 @@ if logFileFlag
     % check if the block was finished and if it was the last block
     if isequal(max(trialList), loggedTrialNo) && isequal(loggedBlockNo, blockNo)
         % let the user know, ask what to do
-        disp([char(10), 'Based on the log file, the subject finished all the  blocks!']);
+        disp([newline, 'Based on the log file, the subject finished all the  blocks!']);
         inputRes = input(['Do you want the subject to restart the last block maybe? ', ...
-            char(10), '(1 = Yes, restart the last block; 2 = No, exit and let me think about this...)',...
-            char(10)]);
+            newline, '(1 = Yes, restart the last block; 2 = No, exit and let me think about this...)',...
+            newline]);
         if isequal(inputRes, 1)
             % restart last block
-            disp([char(10), 'Great, we restart block ', num2str(loggedBlockNo), '!']);
+            disp([newline, 'Great, we restart block ', num2str(loggedBlockNo), '!']);
             % set starting point to the start of the block
             startTrialNo = min(trialList);
             startBlockNo = loggedBlockNo;
             % user message
-            disp(['We start from trial no. ', num2str(startTrialNo), '.', char(10),...
+            disp(['We start from trial no. ', num2str(startTrialNo), '.', newline,...
                 'First block is set to ', num2str(startBlockNo)]);           
         elseif isequal(inputRes, 2)
             returnFlag = 1;
@@ -309,16 +309,16 @@ if logFileFlag
     % if it was the last trial in block, but not the last block, start with next block 
     elseif isequal(max(trialList), loggedTrialNo) && ~isequal(loggedBlockNo, blockNo)
         % let the user know
-        disp([char(10), 'Based on the log file, the subject just finished block ', num2str(loggedBlockNo),... 
-            ' when the script finished.', char(10), 'We could restart from the next block by setting ',...
+        disp([newline, 'Based on the log file, the subject just finished block ', num2str(loggedBlockNo),... 
+            ' when the script finished.', newline, 'We could restart from the next block by setting ',...
             'the trial number to the first one in block ', num2str(loggedBlockNo+1)]);
         inputRes = input(['Do you want the subject to restart from the ',...
             'first trial of the upcoming block (block ', num2str(loggedBlockNo+1), ')? ', ...
-            char(10), '(1 = Yes, restart from the next block; 2 = No, exit and let me think about this...)',...
-            char(10)]); 
+            newline, '(1 = Yes, restart from the next block; 2 = No, exit and let me think about this...)',...
+            newline]); 
         if isequal(inputRes, 1)
             % restart from upcoming block
-            disp([char(10), 'Great, we restart from the upcoming block ', num2str(loggedBlockNo+1), '!']);
+            disp([newline, 'Great, we restart from the upcoming block ', num2str(loggedBlockNo+1), '!']);
             % set starting point to the start of the block
             startTrialNo = loggedTrialNo+1;
             startBlockNo = loggedBlockNo+1;
@@ -327,7 +327,7 @@ if logFileFlag
                 error('Could not set starting trial for next block based on the existing log file, investigate!');
             end            
             % user message
-            disp(['We start from trial no. ', num2str(startTrialNo), '.', char(10),...
+            disp(['We start from trial no. ', num2str(startTrialNo), '.', newline,...
                 'First block is set to ', num2str(startBlockNo)]);                     
         elseif isequal(inputRes, 2)
             returnFlag = 1;
@@ -340,21 +340,21 @@ if logFileFlag
     
     % if trial is not the last one of the current block, we restart the last block    
     else
-        disp([char(10), 'Based on the log file, the subject was performing block ', num2str(loggedBlockNo),... 
-            ' but did not finish it.', char(10), 'We could restart from the beginning of that block by setting ',...
+        disp([newline, 'Based on the log file, the subject was performing block ', num2str(loggedBlockNo),... 
+            ' but did not finish it.', newline, 'We could restart from the beginning of that block by setting ',...
             'the trial number to the first one in block ', num2str(loggedBlockNo)]);
         inputRes = input(['Do you want the subject to restart from the ',...
             'first trial of the last block (block ', num2str(loggedBlockNo), ')? ', ...
-            char(10), '(1 = Yes, restart the last block; 2 = No, exit and let me think about this...)',...
-            char(10)]);    
+            newline, '(1 = Yes, restart the last block; 2 = No, exit and let me think about this...)',...
+            newline]);    
         if isequal(inputRes, 1)
             % restart last block
-            disp([char(10), 'Great, we restart the last block ', num2str(loggedBlockNo), '!']);            
+            disp([newline, 'Great, we restart the last block ', num2str(loggedBlockNo), '!']);            
              % set starting point to the start of the block
             startTrialNo = min(trialList);
             startBlockNo = loggedBlockNo;
             % user message
-            disp(['We start from trial no. ', num2str(startTrialNo), '.', char(10),...
+            disp(['We start from trial no. ', num2str(startTrialNo), '.', newline,...
                 'First block is set to ', num2str(startBlockNo)]);  
         elseif isequal(inputRes, 2)
             returnFlag = 1;
@@ -368,7 +368,7 @@ if logFileFlag
     
     
 else
-    disp([char(10), 'We start the experiment anew, first trial is set to ', num2str(startTrialNo), '.', char(10),...
+    disp([newline, 'We start the experiment anew, first trial is set to ', num2str(startTrialNo), '.', newline,...
         'First block is set to ', num2str(startBlockNo)]);
     
 end

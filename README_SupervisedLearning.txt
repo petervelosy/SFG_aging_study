@@ -4,5 +4,5 @@ stimulusGenerationGlueSupervisedLearning(1, 'Young')
 
 ------------------------------------
 
-SFGmainSupervisedLearning(1, 'Young') - teszt
-SFGmainSupervisedLearning(1, 'Young', true) - training with feedback
+SFGmainSupervisedLearning(1, false, DEVMODE, 'no') - teszt (DEVMODE=bool)
+SFGmainSupervisedLearning(1, true, DEVMODE, 'no') - training with feedback
