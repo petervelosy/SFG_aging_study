@@ -1,4 +1,4 @@
-function SFGmainSupervisedLearning(subNum, feedback, devMode, varargin)
+function SFGmainSL(subNum, feedback, devMode, varargin)
 %% Stochastic figure-ground experiment - main experimental script
 %
 % USAGE: SFGmain(subNum, stimArrayFile=./subjectXX/stimArray*.mat, blockNo=10, triggers='yes')
@@ -90,7 +90,7 @@ if ~exist('stimArrayFile', 'var')
     end
 end
 if ~exist('blockNo', 'var')
-    blockNo = 2; % TODO
+    blockNo = 1; % TODO
 end
 if ~exist('triggers', 'var')
     triggers = 'yes';

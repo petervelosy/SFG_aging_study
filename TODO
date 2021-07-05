@@ -6,3 +6,6 @@ Configure peripherals
 Cleanup
 Instrukciók
 Practice - 3 fázis [ 2 gomb, van figure le, van figure fel, nincs figure | hangerő beállítása  | feedback: kritérium: tudjon min 70%-on teljesíteni (egy szinten maradunk) ]
+devmode helyett külön flag a smallScreen-nek
+try-catch blokkok
+az escape-t néha többször kell nyomni, debug

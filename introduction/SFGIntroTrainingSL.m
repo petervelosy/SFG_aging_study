@@ -162,11 +162,16 @@ end
 backGroundColor = [0 0 0];
 textColor = [255 255 255];
 
-smallScreen = devMode;
+smallScreen = false;
 [win, rect, ~] = setUpAndOpenPTBScreen(screenNumber, backGroundColor, smallScreen);
+
+[xCenter, yCenter] = RectCenter(rect);
 
 fixCrossWin = createFixationCrossOffscreenWindow(win, backGroundColor, textColor, rect);
 qMarkWin = createQuestionMarkOffscreenWindow(win, backGroundColor, textColor, rect);
+
+okRespWin = createTextFeedbackOffscreenWindow('Jó válasz', win, backGroundColor, rect, xCenter, yCenter, textColor);
+badRespWin = createTextFeedbackOffscreenWindow('Rossz válasz', win, backGroundColor, rect, xCenter, yCenter, textColor);
 
 % set flag for aborting experiment
 abortFlag = 0;
@@ -191,16 +196,12 @@ disp([newline, 'Initialized psychtoolbox basics, opened window, ',...
 %% Start stimulus introduction
 
 % instructions for subject
-introText = ['Most példa hangmintákat tud lejátszani a billentyű segítségével. \n\n',...
-    'Három féle mintát használunk, az egyikben emelkedő hangsor hallható, a másodikban ereszkedő, a harmadikban csak háttérzaj hallható: \n\n',...
+introText = ['A következőben fel kell ismernie az előbb bemutatott hangminta-típusokat. Minden választ követően visszajelzést kap a válasz helyességéről. \n\n',...
+    'Két féle mintát használunk: emelkedő vagy ereszkedő hangsor.\n\n',...
     'A hangmintában van emelkedő hangsor  -  "', KbName(keys.figAsc), '" billentyű. \n',...
-    'A hangmintában van ereszkedő hangsor  -  "', KbName(keys.figDesc), '" billentyű. \n',...
-    'Nyomja meg valamelyik billentyűt a kezdéshez! \n\n',...
-    'Az "', KbName(keys.abort), '" billentyűvel befejezheti a feladatot.'];
-
-taskText = ['A hangmintában van emelkedő hangsor  -  "', KbName(keys.figAsc), '" billentyű. \n',...
-    'A hangmintában van ereszkedő hangsor  -  "', KbName(keys.figDesc), '" billentyű. \n',...
-    'Nyomja meg valamelyik billentyűt a következő hangmintához! \n\n',...
+    'A hangmintában van ereszkedő hangsor  -  "', KbName(keys.figDesc), '" billentyű. \n\n',...
+            'Mindig akkor válaszoljon, amikor a kérdőjel látható.\n\n',...
+    'Nyomja meg a "SPACE" billentyűt a kezdéshez! \n\n',...
     'Az "', KbName(keys.abort), '" billentyűvel befejezheti a feladatot.'];
 
 % display instructions
@@ -246,6 +247,7 @@ targetAbsStepSize = 50;
 stepSizeStep = -10;
 minTrialsPerStepSize = 20;
 minCumAcc = 0.75;
+feedbackDisplayTimeSec = 1;
 
 trialTypes = [-1, 1];
 
@@ -315,10 +317,34 @@ while ~(stimoptFigureAsc.figureStepS == targetAbsStepSize && index >= minTrialsP
             if find(keyCodeSub) == keys.figAsc
                 detectedDirection = 1;
                 acc(index) = detectedDirection == nextTrial;
+                
+                if acc(index)
+                    Screen('CopyWindow', okRespWin, win);
+                    Screen('DrawingFinished', win);
+                    Screen('Flip', win);
+                    WaitSecs(feedbackDisplayTimeSec);
+                else
+                    Screen('CopyWindow', badRespWin, win);
+                    Screen('DrawingFinished', win);
+                    Screen('Flip', win);
+                    WaitSecs(feedbackDisplayTimeSec);
+                end
                 break;
             elseif find(keyCodeSub) == keys.figDesc
                 detectedDirection = -1;
                 acc(index) = detectedDirection == nextTrial;
+                
+                if acc(index)
+                    Screen('CopyWindow', okRespWin, win);
+                    Screen('DrawingFinished', win);
+                    Screen('Flip', win);
+                    WaitSecs(feedbackDisplayTimeSec);
+                else
+                    Screen('CopyWindow', badRespWin, win);
+                    Screen('DrawingFinished', win);
+                    Screen('Flip', win);
+                    WaitSecs(feedbackDisplayTimeSec);
+                end
                 break;
             end
         % experimenter key down    
