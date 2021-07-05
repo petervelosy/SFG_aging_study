@@ -288,8 +288,6 @@ while ~(stimoptFigureAsc.figureStepS == targetAbsStepSize && index >= minTrialsP
         trialMessage = 'with an ascending';
     elseif nextTrial==-1
         trialMessage = 'with a descending';
-    elseif nextTrial==0
-        trialMessage = 'without a';
     end
     disp([newline, 'Playing next stimulus - ', trialMessage, ' figure']);
     disp(['Step size: ', num2str(stimoptFigureAsc.figureStepS)]);
