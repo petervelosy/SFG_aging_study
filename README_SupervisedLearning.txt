@@ -1,13 +1,11 @@
-SUBJECT_ID=int
-DEV_MODE=bool
-GROUP='Young', 'Elderly', 'ElderlyHI'
+    SFGintro(SUBJECT_ID) - ebben generálhat magának ingereket (emelkedő, ereszkedő, csak háttérzaj)
+    SFGIntroTrainingSL(SUBJECT_ID, true) - feedback-kel nagyon könnyűtől nehezebbig haladó hangok accuracy-ellenőrzéssel (min 75%)
+    SFGthresholdBackgroundSL(SUBJECT_ID, GROUP)  - Threshold-mérés (GROUP='Young', 'Elderly', 'ElderlyHI'). A végén a standard deviation-értékeket össze kell vetni (a kiírt referenciaérték alatt kell lennie)
+    stimulusGenerationGlueSL(SUBJECT_ID) - Ingerek generálása (csak egyszer szabad futtatni ksz-enként)
 
-SFGintro(SUBJECT_ID)
-SFGIntroTrainingSL(SUBJECT_ID, DEV_MODE)
-SFGthresholdBackgroundSL(SUBJECT_ID, GROUP)
-stimulusGenerationGlueSL(SUBJECT_ID)
+    ------------------------------------
 
-------------------------------------
+    SFGmainSL(SUBJECT_ID, false, true, 'no', 4) - teszt, ez lesz majd EEG-vel
+    SFGmainSL(SUBJECT_ID, true, true, 'no', 8) - training feedback-kel (EEG nélkül)
 
-SFGmainSL(1, false, DEVMODE, 'no') - teszt 
-SFGmainSL(1, true, DEVMODE, 'no') - training with feedback
+    plotStaircase(SUBJECT_ID) - staircase megjelenítése. Blokkonkélnt külön adatsort jelenít meg.

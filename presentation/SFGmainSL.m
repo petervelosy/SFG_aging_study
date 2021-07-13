@@ -90,7 +90,7 @@ if ~exist('stimArrayFile', 'var')
     end
 end
 if ~exist('blockNo', 'var')
-    blockNo = 1; % TODO
+    blockNo = 4; % TODO
 end
 if ~exist('triggers', 'var')
     triggers = 'yes';

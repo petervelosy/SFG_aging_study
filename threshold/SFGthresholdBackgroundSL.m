@@ -189,7 +189,7 @@ q = QuestCreate(qopt.tGuess, qopt.tGuessSd, qopt.pThreshold,...
 % the first few trials are not used for updating the Quest object (due to
 % unfamiliarity with the task in the beginning), we set a variable
 % controlling the number of trials to ignore:
-qopt.ignoreTrials = 1;  % must be > 0 
+qopt.ignoreTrials = 3;  % must be > 0 
 
 % maximum number of extra trials when Quest estimate SD is too large
 trialExtraMax = 20;
@@ -259,7 +259,7 @@ try
     % inter-trial interval, random between 700-1200 ms
     iti = rand([trialMax+trialExtraMax, 1])*0.5+0.7;
     % maximum time for a response, secs
-    respInt = 2;
+    respInt = 4;
     % stimulus length for sanity checks later
     stimLength = stimopt.totalDur;
 
