@@ -655,14 +655,11 @@ for block = startBlockNo:blockNo
     % unreadable
     clc;    
     
-    % false alarm rate in block
-    blockFalseAlarm = sum(acc(trial-trialCounterForBlock+1:trial)==0 &... 
-        stepSizes(trial-trialCounterForBlock+1:trial)==0)/trialCounterForBlock*100;
     % user messages
     disp([newline, newline, 'Block no. ', num2str(block), ' has ended,'... 
         'showing block-ending text to participant']);
     disp([newline, 'Overall accuracy in block was ', num2str(blockAcc),... 
-        '%; false alarm rate was ', num2str(blockFalseAlarm), '%']);    
+        '%']);    
     
     
     %% Feedback to subject at the end of block
