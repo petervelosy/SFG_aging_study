@@ -146,8 +146,6 @@ disp([newline, 'Ready to start the experiment']);
 
 % get step size variable for stimuli
 stepSizes = cell2mat(stimArray(:, 7));
-% figure / added noise start and end time in terms of chords
-figStartCord = cell2mat(stimArray(:, 9));
 
 % we check the length of stimuli + sanity check
 stimLength = cell2mat(stimArray(:, 2));
@@ -245,13 +243,13 @@ okRespWin = createTextFeedbackOffscreenWindow('Jó válasz', win, backGroundColo
 badRespWin = createTextFeedbackOffscreenWindow('Rossz válasz', win, backGroundColor, rect, xCenter, yCenter, textColor);
 
 % set random ITI between 500-800 ms, with round 100 ms values
-iti = (randi(4, [size(stimArray, 1) 1])+4)/10;  % in secs
+iti = (randi(4, [size(stimArray, 1)*100 1])+4)/10;  % in secs
 
 % response time interval
 respInt = 2;
 
 % response variables preallocation
-detectedDirection = nan(size(stimArray, 1), 1);
+detectedDirection = nan(size(stimArray, 1)*100, 1);
 respTime = detectedDirection;
 acc = detectedDirection;
 
@@ -642,7 +640,7 @@ for block = startBlockNo:blockNo
             acc(trial), detectedDirection(trial),... 
             respTime(trial), iti(trial),...
             trialStart, startTime-trialStart,... 
-            (figStartCord(trial)-1)*chordLength,... 
+            (figStartChord-1)*chordLength,... 
             respStart-startTime, trig.stimType(stimIndex)};
         
         % save logging/results variable
