@@ -51,8 +51,9 @@ function plotStaircase(subjectNr, fileNameSuffix, mode)
                 
                 meanAccuracyHigh = mean(cell2mat(blockLogHighSnr(:, 10)),'omitnan');
                 meanAccuracyLow = mean(cell2mat(blockLogLowSnr(:, 10)),'omitnan');
-                disp(sprintf('Mean accuracy (high SNR, block %d): %f', block, meanAccuracyHigh));
-                disp(sprintf('Mean accuracy (low SNR, block %d): %f', block, meanAccuracyLow));
+                fprintf('Mean accuracy (high SNR, block %d): %f', block, meanAccuracyHigh);
+                fprintf('Mean accuracy (low SNR, block %d): %f', block, meanAccuracyLow);
+        end
     end
     if strcmp(mode, 'all')
         title(sprintf('SFG learning staircase for subject %s', subjectStr));

@@ -173,32 +173,13 @@ disp([newline, 'Extracted stimulus features']);
 
 % basic triggers for trial start, sound onset and response
 trig = struct;
-trig.trialStart = 200;
-trig.playbackStart = 210;
-trig.respPresent = 220;
-trig.respAbsent = 230;
+trig.playbackStartPart = 10;
+trig.figureStartPart = 20;
+trig.respCorrect = 55;
+trig.respIncorrect = 66;
 trig.l = 1000; % trigger length in microseconds
-trig.blockStart = 199;
-
-% triggers for stimulus types, based on the number of unique stimulus types
-% we assume that stimTypes is a cell array (with headers) that contains the 
-% unique stimulus feature combinations, with an index for each combination 
-% in the last column
-uniqueStimTypes = cell2mat(stimTypes(2:end,end));
-if length(uniqueStimTypes) > 198
-    error('Too many stimulus types for properly triggering them');
-end
-% triggers for stimulus types are integers in the range 1-198
-trigTypes = uniqueStimTypes;
-% add trigger info to stimTypes cell array as an extra column
-stimTypes = [stimTypes, [{'trigger'}; num2cell(trigTypes)]];
-
-% create triggers for stimulus types, for all trials
-trig.stimType = cell2mat(stimArray(:, 13));
-
-% add triggers to logging / results variable
-% logVar(2:end, strcmp(logHeader, 'trigger')) = num2cell(trig.stimType);
-% TODO add triggers as the staircase runs
+trig.blockStartPart = 100;
+trig.blockEnd = 200;
 
 % user message
 disp([newline, 'Set up triggers']);
@@ -403,10 +384,8 @@ for block = startBlockNo:blockNo
     end    
     
     if triggers
-        % block start trigger + block number trigger
-        lptwrite(1, trig.blockStart, trig.l);
-        WaitSecs(0.005);
-        lptwrite(1, trig.blockStart+block, trig.l);
+        % block start trigger
+        lptwrite(1, trig.blockStartPart+block, trig.l);
     end
     
     
@@ -431,14 +410,22 @@ for block = startBlockNo:blockNo
     backgrRes = load(backgrResFilePath);
     
     toneCompConditions = [backgrRes.backgroundEst, backgrRes.backgroundEst+expopt.expopt.highLowBgCompDiff];
+    % Odd numbered blocks will contain high SNR, even numbered blocks low SNR stimuli. 
+    toneCompIndex = iif(mod(block,2) == 1, 1, 2);
+    toneComp = toneCompConditions(toneCompIndex);
+    toneCompTriggerParts = [0, 2];
+    toneCompTriggerPart = toneCompTriggerParts(toneCompIndex);
+ 
     directionConditions = [-1, 1];
+    directionTriggerParts = [2, 1];
     
     % trial loop (over the trials for given block)
     while ~(trialCounterForBlock >= minTrialCount && reversalCount >= minReversalCount)
         
         % randomize parameters
-        toneComp = toneCompConditions(randi(2));
-        direction = directionConditions(randi(2));
+        directionIndex = randi(2);
+        direction = directionConditions(directionIndex);
+        directionTriggerPart = directionTriggerParts(directionIndex);
         desiredStepSize = stepSize * direction;
         disp(['Step size:', num2str(desiredStepSize)]);
         
@@ -455,14 +442,7 @@ for block = startBlockNo:blockNo
         % background with fixation cross, get trial start timestamp
         Screen('CopyWindow', fixCrossWin, win);
         Screen('DrawingFinished', win);
-        trialStart = Screen('Flip', win); 
-        
-        if triggers
-            % trial start trigger + trial type trigger
-            lptwrite(1, trig.trialStart, trig.l);
-            WaitSecs(0.005);
-            lptwrite(1, trig.stimType(stimIndex), trig.l);
-        end
+        trialStart = Screen('Flip', win);
         
         % user message
         disp([newline, 'Starting trial ', num2str(trialCounterForBlock)]);
@@ -484,8 +464,14 @@ for block = startBlockNo:blockNo
         startTime = PsychPortAudio('Start', pahandle, 1, trialStart+iti(trial), 1);
         
         % playback start trigger
+        playbackStartTrigger = trig.playbackStartPart + toneCompTriggerPart + directionTriggerPart;
+        figureStartTrigger = trig.figureStartPart + toneCompTriggerPart + directionTriggerPart;
         if triggers
-            lptwrite(1, trig.playbackStart, trig.l);
+            lptwrite(1, playbackStartTrigger, trig.l);
+            figStartChord = cell2mat(stimArray(:,9));
+            chordLength = cell2mat(stimArray(:,3));
+            WaitSecs(chordLength * (figStartChord-1));
+            lptwrite(1, figureStartTrigger, trig.l);
         end
         
         % user message
@@ -514,18 +500,10 @@ for block = startBlockNo:blockNo
                 if find(keyCodeSub) == keys.figPresent
                     detectedDirection(trial) = 1;
                     respFlag = 1;
-                    % response trigger
-                    if triggers
-                        lptwrite(1, trig.respPresent, trig.l);
-                    end
                     break;
                 elseif find(keyCodeSub) == keys.figAbsent
                     detectedDirection(trial) = -1;
                     respFlag = 1;
-                    % response trigger
-                    if triggers
-                        lptwrite(1, trig.respAbsent, trig.l);
-                    end
                     break;
                 end
             % experimenter key down    
@@ -564,6 +542,9 @@ for block = startBlockNo:blockNo
         if (detectedDirection(trial)==1 && desiredStepSize > 0) || (detectedDirection(trial)==-1 && desiredStepSize < 0)
             disp('Subject''s response was accurate');
             acc(trial) = 1;
+            if triggers
+                lptwrite(1, trig.respCorrect, trig.l);
+            end
             hitsInARow = hitsInARow + 1;
             missesInARow = 0;
             disp(['Hits in a row:', num2str(hitsInARow)]);
@@ -592,6 +573,9 @@ for block = startBlockNo:blockNo
         elseif (detectedDirection(trial)==1 && desiredStepSize < 0) || (detectedDirection(trial)==-1 && desiredStepSize > 0)
             disp('Subject made an error');
             acc(trial) = 0;
+            if triggers
+                lptwrite(1, trig.respIncorrect, trig.l);
+            end
             missesInARow = missesInARow + 1;
             hitsInARow = 0;
             disp(['Misses in a row:', num2str(missesInARow)]);
@@ -641,7 +625,7 @@ for block = startBlockNo:blockNo
             respTime(trial), iti(trial),...
             trialStart, startTime-trialStart,... 
             (figStartChord-1)*chordLength,... 
-            respStart-startTime, trig.stimType(stimIndex)};
+            respStart-startTime, playbackStartTrigger};
         
         % save logging/results variable
         save(subLogF, 'logVar');
@@ -664,7 +648,12 @@ for block = startBlockNo:blockNo
     
     %% Feedback to subject at the end of block
     % if not last block and not a break
-    if (block ~= blockNo) && ~ismembertol(block, breakBlocks)        
+    if (block ~= blockNo) && ~ismembertol(block, breakBlocks)  
+        
+        if triggers
+            % block end trigger
+            lptwrite(1, trig.blockEnd, trig.l);
+        end
         
         % block ending text
         blockEndText = double(['Vége a(z) ', num2str(block), '. blokknak!\n\n\n',... 
@@ -704,6 +693,11 @@ for block = startBlockNo:blockNo
     
     % if not last block and there is a break
     elseif (block ~= blockNo) && ismembertol(block, breakBlocks)
+        
+        if triggers
+            % block end trigger
+            lptwrite(1, trig.blockEnd, trig.l);
+        end
         
         % user message
         disp([newline, 'There is a BREAK now!']);
