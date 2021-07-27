@@ -1,6 +1,9 @@
-function plotStaircase(subjectNr)
+function plotStaircase(subjectNr, fileNameSuffix)
+    if ~exist('fileNameSuffix', 'var')
+        fileNameSuffix = '';
+    end
     subjectStr = num2str(subjectNr);
-    logFileName = strcat('subject', subjectStr, filesep, 'sub', subjectStr, 'Log.mat');
+    logFileName = strcat('subject', subjectStr, filesep, 'sub', subjectStr, 'Log', fileNameSuffix, '.mat');
     load(logFileName, 'logVar');
     yticks(0:1:10);
     logNoHeader = logVar(2:end, :);
