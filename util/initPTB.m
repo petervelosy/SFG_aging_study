@@ -2,7 +2,7 @@ function [pahandle, screenNumber, KbIdxSub, KbIdxExp] = initPTB(fs, devMode)
     %% Psychtoolbox initialization
     
     disp([newline, 'Initializing Psychtoolbox, PsychPortAudio...']);
-    
+        
     if ~exist('devMode', 'var')
         devMode = false;
     end

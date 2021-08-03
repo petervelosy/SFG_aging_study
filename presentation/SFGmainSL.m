@@ -196,11 +196,11 @@ keys.abort = KbName('ESCAPE');
 keys.go = KbName('SPACE');
 % counterbalancing response side across subjects, based on subject number
 if mod(subNum, 2) == 0
-    keys.figPresent = KbName('l');
-    keys.figAbsent = KbName('s');
+    keys.figAsc = KbName('l');
+    keys.figDesc = KbName('s');
 else
-    keys.figPresent = KbName('s');
-    keys.figAbsent = KbName('l');
+    keys.figAsc = KbName('s');
+    keys.figDesc = KbName('l');
 end
 
 if ~devMode
@@ -263,8 +263,8 @@ disp([newline, 'Initialized psychtoolbox basics, opened window, ',...
 % instructions text
 instrText = double(['A feladat ugyanaz lesz, mint az előző blokkok során - \n',... 
     'jelezze, hogy a hangmintában emelkedő vagy ereszkedő hangsort hall.\n\n',...
-    'Emelkedő hangsor a hangmintában - "', KbName(keys.figPresent), '" billentyű. \n',... 
-    'Ereszkedő hangsor a hangmintában - "' ,KbName(keys.figAbsent), '" billentyű. \n\n',...
+    'Emelkedő hangsor a hangmintában - "', KbName(keys.figAsc), '" billentyű. \n',... 
+    'Ereszkedő hangsor a hangmintában - "' ,KbName(keys.figDesc), '" billentyű. \n\n',...
     'Mindig akkor válaszoljon, amikor megjelenik a kérdőjel.\n\n',...
     'Nyomja meg a SPACE billentyűt ha készen áll!']);
 
@@ -385,7 +385,7 @@ for block = startBlockNo:blockNo
     
     if triggers
         % block start trigger
-        lptwrite(1, trig.blockStartPart+block, trig.l);
+        sendTrigger(1, trig.blockStartPart+block, trig.l);
     end
     
     
@@ -467,11 +467,11 @@ for block = startBlockNo:blockNo
         playbackStartTrigger = trig.playbackStartPart + toneCompTriggerPart + directionTriggerPart;
         figureStartTrigger = trig.figureStartPart + toneCompTriggerPart + directionTriggerPart;
         if triggers
-            lptwrite(1, playbackStartTrigger, trig.l);
-            figStartChord = cell2mat(stimArray(:,9));
-            chordLength = cell2mat(stimArray(:,3));
+            sendTrigger(1, playbackStartTrigger, trig.l);
+            figStartChord = cell2mat(stimArray(stimIndex,9));
+            chordLength = cell2mat(stimArray(stimIndex,3));
             WaitSecs(chordLength * (figStartChord-1));
-            lptwrite(1, figureStartTrigger, trig.l);
+            sendTrigger(1, figureStartTrigger, trig.l);
         end
         
         % user message
@@ -497,11 +497,11 @@ for block = startBlockNo:blockNo
             % subject key down
             if keyIsDownSub
                 % if subject responded figure presence/absence
-                if find(keyCodeSub) == keys.figPresent
+                if find(keyCodeSub) == keys.figAsc
                     detectedDirection(trial) = 1;
                     respFlag = 1;
                     break;
-                elseif find(keyCodeSub) == keys.figAbsent
+                elseif find(keyCodeSub) == keys.figDesc
                     detectedDirection(trial) = -1;
                     respFlag = 1;
                     break;
@@ -613,13 +613,13 @@ for block = startBlockNo:blockNo
         % accumulating all results in logging / results variable
             
         stimFileName = cell2mat(stimArray(stimIndex, 1));
-        toneComp = cell2mat(stimArray(stimIndex, 11));
+        toneComps = cell2mat(stimArray(stimIndex, 11));
         figCoherence = cell2mat(stimArray(stimIndex, 6));
         figStepSize = cell2mat(stimArray(stimIndex, 7));
         figStartChord = cell2mat(stimArray(stimIndex, 9));
         figEndChord = cell2mat(stimArray(stimIndex, 10));
     
-        logVar(end+1, 1:end) = {subNum, block, trial, stimFileName, toneComp, ...
+        logVar(end+1, 1:end) = {subNum, block, trial, stimFileName, toneComps, ...
             figCoherence, figStepSize, figStartChord, figEndChord...
             acc(trial), detectedDirection(trial),... 
             respTime(trial), iti(trial),...

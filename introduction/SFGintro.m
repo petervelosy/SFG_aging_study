@@ -1,5 +1,4 @@
-function SFGintro(subNum, stimopt, loudnessEq)
-Screen('Preference', 'SkipSyncTests', 1); %TODO remove
+function SFGintro(subNum, devMode, stimopt, loudnessEq)
 %% Function to familiarize subjects with SFG stimuli
 %
 % USAGE: SFGintro(subNum, stimopt=SFGparamsIntro, loudnessEq=true)
@@ -31,12 +30,16 @@ Screen('Preference', 'SkipSyncTests', 1); %TODO remove
 
 if ~ismembertol(nargin, 1:3)
     error(['Function SFGintro requires input arg "subNum" while input ',...
-        'args "stimopt" and "loudnessEq" are optional!']);
+        'args "devmode", "stimopt" and "loudnessEq" are optional!']);
 end
 if nargin == 1
+    devMode = false;
     stimopt = SFGparamsIntro;
     loudnessEq = true;
 elseif nargin == 2
+    stimopt = SFGparamsIntro;
+    loudnessEq = true;
+elseif nargin == 3
     loudnessEq = true;
 end
 if ~ismembertol(subNum, 1:999)
@@ -47,6 +50,10 @@ if ~isstruct(stimopt)
 end
 if ~islogical(loudnessEq) || numel(loudnessEq)~=1
     error('Input arg "loudnessEq" should be a logical value!');
+end
+
+if devMode
+   Screen('Preference', 'SkipSyncTests', 1); 
 end
 
 % Workaround for a command window text display bug - too much printing to
@@ -153,7 +160,9 @@ else
     keys.figAbsent = KbName('h');
 end
 
-setUpKeyRestrictions(keys);
+if ~devMode
+    setUpKeyRestrictions(keys);
+end
 
 % Set up display params:
 backGroundColor = [0 0 0];
@@ -169,10 +178,12 @@ abortFlag = 0;
 % init flag for reqested trial type
 nextTrial = [];
 
-% hide mouse
-HideCursor(screenNumber);
-% suppress keyboard input to command window
-ListenChar(-1);
+if ~devMode
+    % hide mouse
+    HideCursor(screenNumber);
+    % suppress keyboard input to command window
+    ListenChar(-1);
+end
 % realtime priority
 Priority(1);
 

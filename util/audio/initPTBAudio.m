@@ -7,7 +7,7 @@ function [pahandle] = initPTBAudio(fs)
     % card
     tmpDevices = PsychPortAudio('GetDevices');
     for i = 1:numel(tmpDevices)
-        if strcmp(tmpDevices(i).DeviceName, 'ESI Juli@: ICE1724 (hw:2,0)') % TODO extract to a parameter
+        if contains(tmpDevices(i).DeviceName, 'MAYA22 USB') % TODO extract to a parameter
             device = tmpDevices(i).DeviceIndex;
         end
     end
