@@ -111,7 +111,7 @@ end
 clc;
 
 % user message
-disp([newline, 'Called SFGmain (the main experimental function) with input args: ',...
+logWithTimestamp([newline, 'Called SFGmain (the main experimental function) with input args: ',...
     newline, 'subNum: ', num2str(subNum),...
     newline, 'stimArrayFile:', stimArrayFile,...
     newline, 'blockNo: ', num2str(blockNo)]);
@@ -120,7 +120,7 @@ disp([newline, 'Called SFGmain (the main experimental function) with input args:
 %% Load/set params, stimuli, check for conflicts
 
 % user message
-disp([newline, 'Loading params and stimuli, checking ',...
+logWithTimestamp([newline, 'Loading params and stimuli, checking ',...
     'for existing files for the subject']);
 
 % a function handles all stimulus sorting to blocks and potential conflicts
@@ -140,7 +140,7 @@ if returnFlag
 end
 
 % user message
-disp([newline, 'Ready to start the experiment']);
+logWithTimestamp([newline, 'Ready to start the experiment']);
 
 %% Stimulus features for triggers + logging
 
@@ -166,7 +166,7 @@ else
 end
 
 % user message
-disp([newline, 'Extracted stimulus features']);
+logWithTimestamp([newline, 'Extracted stimulus features']);
 
 
 %% Triggers
@@ -182,7 +182,7 @@ trig.blockStartPart = 100;
 trig.blockEnd = 200;
 
 % user message
-disp([newline, 'Set up triggers']);
+logWithTimestamp([newline, 'Set up triggers']);
 
 
 %% Psychtoolbox initialization
@@ -254,7 +254,7 @@ if triggers
 end
 
 % user message
-disp([newline, 'Initialized psychtoolbox basics, opened window, ',...
+logWithTimestamp([newline, 'Initialized psychtoolbox basics, opened window, ',...
     'started PsychPortAudio device']);
 
 
@@ -274,7 +274,7 @@ DrawFormattedText(win, instrText, 'center', 'center', textColor);
 Screen('Flip', win);
 
 % user message
-disp([newline, 'Showing the instructions text right now...']);
+logWithTimestamp([newline, 'Showing the instructions text right now...']);
 
 % wait for key press to start
 while 1
@@ -304,7 +304,7 @@ if abortFlag
 end
 
 % user message
-disp([newline, 'Subject signalled she/he is ready, we go ahead with the task']);
+logWithTimestamp([newline, 'Subject signalled she/he is ready, we go ahead with the task']);
 
 %% Preload all stimuli
 
@@ -344,7 +344,7 @@ for block = startBlockNo:blockNo
     trialCounterForBlock = 0;    
     
     % user message
-    disp([newline, 'Buffered all stimuli for block ', num2str(block),... 
+    logWithTimestamp([newline, 'Buffered all stimuli for block ', num2str(block),... 
         ', showing block start message']);    
      
     % block starting text
@@ -427,11 +427,11 @@ for block = startBlockNo:blockNo
         direction = directionConditions(directionIndex);
         directionTriggerPart = directionTriggerParts(directionIndex);
         desiredStepSize = stepSize * direction;
-        disp(['Step size:', num2str(desiredStepSize)]);
+        logWithTimestamp(['Step size:', num2str(desiredStepSize)]);
         
         filteredStimIndexes = find(cell2mat(stimArray(:,7))==desiredStepSize & cell2mat(stimArray(:,11))-cell2mat(stimArray(:,6))==toneComp);
         stimIndex = filteredStimIndexes(randi(length(filteredStimIndexes)));
-        disp(['StimIndex: ', num2str(stimIndex)]);
+        logWithTimestamp(['StimIndex: ', num2str(stimIndex)]);
         
         % relative trial number (trial in given block)
         trialCounterForBlock = trialCounterForBlock+1;
@@ -445,11 +445,11 @@ for block = startBlockNo:blockNo
         trialStart = Screen('Flip', win);
         
         % user message
-        disp([newline, 'Starting trial ', num2str(trialCounterForBlock)]);
+        logWithTimestamp([newline, 'Starting trial ', num2str(trialCounterForBlock)]);
         if stepSizes(stimIndex) > 0
-            disp('There is an ascending figure in this trial');
+            logWithTimestamp('There is an ascending figure in this trial');
         elseif stepSizes(stimIndex) < 0
-            disp('There is a descending figure in this trial');
+            logWithTimestamp('There is a descending figure in this trial');
         end
 
         % fill audio buffer with next stimuli
@@ -475,8 +475,8 @@ for block = startBlockNo:blockNo
         end
         
         % user message
-        disp(['Audio started at ', num2str(startTime-trialStart), ' secs after trial start']);
-        disp(['(Target ITI was ', num2str(iti(trial)), ' secs)']);
+        logWithTimestamp(['Audio started at ', num2str(startTime-trialStart), ' secs after trial start']);
+        logWithTimestamp(['(Target ITI was ', num2str(iti(trial)), ' secs)']);
         
         % prepare screen change for response period       
         Screen('CopyWindow', qMarkWin, win);
@@ -486,7 +486,7 @@ for block = startBlockNo:blockNo
         respStart = Screen('Flip', win, startTime+stimLength-0.5*ifi);
         
         % user message
-        disp(['Visual flip for response period start was ', num2str(respStart-startTime),... 
+        logWithTimestamp(['Visual flip for response period start was ', num2str(respStart-startTime),... 
             ' secs after audio start (should equal ', num2str(stimLength), ')']);
         
         % wait for response
@@ -532,22 +532,22 @@ for block = startBlockNo:blockNo
         
         % user messages
         if detectedDirection(trial) == 1
-            disp('Subject detected an ascending figure');    
+            logWithTimestamp('Subject detected an ascending figure');    
         elseif detectedDirection(trial) == -1
-            disp('Subject detected a descending figure');
+            logWithTimestamp('Subject detected a descending figure');
         elseif isnan(detectedDirection(trial))
-            disp('Subject did not respond in time');
+            logWithTimestamp('Subject did not respond in time');
         end
         % accuraccy
         if (detectedDirection(trial)==1 && desiredStepSize > 0) || (detectedDirection(trial)==-1 && desiredStepSize < 0)
-            disp('Subject''s response was accurate');
+            logWithTimestamp('Subject''s response was accurate');
             acc(trial) = 1;
             if triggers
                 lptwrite(1, trig.respCorrect, trig.l);
             end
             hitsInARow = hitsInARow + 1;
             missesInARow = 0;
-            disp(['Hits in a row:', num2str(hitsInARow)]);
+            logWithTimestamp(['Hits in a row:', num2str(hitsInARow)]);
             if staircaseTendency == 0
                 staircaseTendency = -1;
             end
@@ -558,10 +558,10 @@ for block = startBlockNo:blockNo
                     if staircaseTendency == 1
                         staircaseTendency = -1;
                         reversalCount = reversalCount + 1;
-                        disp(['REVERSAL nr. ', num2str(reversalCount)]);
+                        logWithTimestamp(['REVERSAL nr. ', num2str(reversalCount)]);
                     end
                 else
-                    disp('No reversal will occur: we are at the minimum available step size.');
+                    logWithTimestamp('No reversal will occur: we are at the minimum available step size.');
                 end
             end
             if feedback
@@ -571,14 +571,14 @@ for block = startBlockNo:blockNo
                 WaitSecs(feedbackDisplayTimeSec);
             end
         elseif (detectedDirection(trial)==1 && desiredStepSize < 0) || (detectedDirection(trial)==-1 && desiredStepSize > 0)
-            disp('Subject made an error');
+            logWithTimestamp('Subject made an error');
             acc(trial) = 0;
             if triggers
                 lptwrite(1, trig.respIncorrect, trig.l);
             end
             missesInARow = missesInARow + 1;
             hitsInARow = 0;
-            disp(['Misses in a row:', num2str(missesInARow)]);
+            logWithTimestamp(['Misses in a row:', num2str(missesInARow)]);
             if staircaseTendency == 0
                 staircaseTendency = -1;
             end
@@ -588,10 +588,10 @@ for block = startBlockNo:blockNo
                     if staircaseTendency == -1
                         staircaseTendency = 1;
                         reversalCount = reversalCount + 1;
-                        disp(['REVERSAL nr. ', num2str(reversalCount)]);
+                        logWithTimestamp(['REVERSAL nr. ', num2str(reversalCount)]);
                     end
                 else
-                    disp('No reversal will occur: we are at the maximum available step size.');
+                    logWithTimestamp('No reversal will occur: we are at the maximum available step size.');
                 end
             end
             if feedback
@@ -603,12 +603,12 @@ for block = startBlockNo:blockNo
         end
         % response time
         if ~isnan(respTime(trial))
-            disp(['Response time was ', num2str(respTime(trial)), ' ms']);
+            logWithTimestamp(['Response time was ', num2str(respTime(trial)), ' ms']);
         end
         % cumulative accuraccy
         % in block
         blockAcc = sum(acc(trial-trialCounterForBlock+1:trial), 'omitnan')/trialCounterForBlock*100;
-        disp(['Overall accuraccy in block so far is ', num2str(blockAcc), '%']);
+        logWithTimestamp(['Overall accuraccy in block so far is ', num2str(blockAcc), '%']);
         
         % accumulating all results in logging / results variable
             
@@ -640,9 +640,9 @@ for block = startBlockNo:blockNo
     clc;    
     
     % user messages
-    disp([newline, newline, 'Block no. ', num2str(block), ' has ended,'... 
+    logWithTimestamp([newline, newline, 'Block no. ', num2str(block), ' has ended,'... 
         'showing block-ending text to participant']);
-    disp([newline, 'Overall accuracy in block was ', num2str(blockAcc),... 
+    logWithTimestamp([newline, 'Overall accuracy in block was ', num2str(blockAcc),... 
         '%']);    
     
     
@@ -700,8 +700,8 @@ for block = startBlockNo:blockNo
         end
         
         % user message
-        disp([newline, 'There is a BREAK now!']);
-        disp('Only the experimenter can start the next block - press "SPACE" when ready');
+        logWithTimestamp([newline, 'There is a BREAK now!']);
+        logWithTimestamp('Only the experimenter can start the next block - press "SPACE" when ready');
         
         % block ending text
         blockEndText = double(['Vége a(z) ', num2str(block), '. blokknak!\n\n\n',... 
@@ -743,7 +743,7 @@ for block = startBlockNo:blockNo
     elseif block == blockNo
  
         % user message
-        disp([newline, 'The task has ended!!!']);
+        logWithTimestamp([newline, 'The task has ended!!!']);
         
         % block ending text
         blockEndText = double(['Vége a feladatnak!\n',...
@@ -765,8 +765,8 @@ end  % block for loop
 
 %% Ending, cleaning up
 
-disp(' ');
-disp('Got to the end!');
+logWithTimestamp(' ');
+logWithTimestamp('Got to the end!');
 
 if triggers
     ppdev_mex('Close', 1);
