@@ -1,0 +1,4 @@
+Index exceeds the number of array elements (136).
+
+Error in SFGmainSL (line 660)
+        stepSizes(trial-trialCounterForBlock+1:trial)==0)/trialCounterForBlock*100;
