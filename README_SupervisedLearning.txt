@@ -5,7 +5,7 @@
 
     ------------------------------------
 
-    SFGmainSL(SUBJECT_ID, false, false, 'yes', 4) - teszt, ez lesz majd EEG-vel
-    SFGmainSL(SUBJECT_ID, true, false, 'yes', 8) - training feedback-kel (EEG nélkül)
+    SFGmainSL(SUBJECT_ID, SESSION_ID, false, false, 'yes', 4) - teszt, ez lesz majd EEG-vel (SESSION_ID: 'pretest' vagy 'posttest')
+    SFGmainSL(SUBJECT_ID, SESSION_ID, true, false, 'yes', 8) - training feedback-kel (EEG nélkül) (SESSION_ID: 'training1', 'training2', stb.)
 
     plotStaircase(SUBJECT_ID) - staircase megjelenítése. Blokkonként külön adatsort jelenít meg.

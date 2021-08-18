@@ -1,4 +1,4 @@
-function SFGmainSL(subNum, feedback, devMode, varargin)
+function SFGmainSL(subNum, sessionId, feedback, devMode, varargin)
 %% Stochastic figure-ground experiment - main experimental script
 %
 % USAGE: SFGmain(subNum, stimArrayFile=./subjectXX/stimArray*.mat, blockNo=10, triggers='yes')
@@ -14,6 +14,8 @@ function SFGmainSL(subNum, feedback, devMode, varargin)
 %
 % Mandatory input:
 % subNum        - Numeric value, one of 1:999. Subject number.
+% sessionId     - String, identifier of the experimental session (eg.
+%                'pretest', 'training1', etc.)
 % feedback      - true = training mode, false = test mode
 % devMode       - Development mode
 %
@@ -49,8 +51,8 @@ function SFGmainSL(subNum, feedback, devMode, varargin)
 %% Input checks
 
 % check no. of input args
-if ~ismembertol(nargin, 1:6)
-    error('Function SFGmain requires input arg "subNum" while input args "feedback", "devMode", "stimArrayFile", "blockNo" and "triggers" are optional!');
+if ~ismembertol(nargin, 1:7)
+    error('Function SFGmain requires input arg "subNum" and "sessionId" while input args "feedback", "devMode", "stimArrayFile", "blockNo" and "triggers" are optional!');
 end
 % check mandatory arg - subject number
 if ~ismembertol(subNum, 1:999)
@@ -128,7 +130,7 @@ logWithTimestamp([newline, 'Loading params and stimuli, checking ',...
 [stimArray, ~,... 
     startBlockNo,...
     logVar, subLogF, returnFlag,... 
-    logHeader, stimTypes] = expParamsHandlerSupervisedLearning(subNum, stimArrayFile, blockNo);
+    logHeader, stimTypes] = expParamsHandlerSupervisedLearning(subNum, sessionId, stimArrayFile, blockNo);
 
 %%%%%%%%%%%%%%%%%%%%%% HARDCODED BREAKS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 breakBlocks = [4, 7];
@@ -177,7 +179,7 @@ trig.playbackStartPart = 10;
 trig.figureStartPart = 20;
 trig.respCorrect = 55;
 trig.respIncorrect = 66;
-trig.l = 1000; % trigger length in microseconds
+trig.l = 2000; % trigger length in microseconds
 trig.blockStartPart = 100;
 trig.blockEnd = 200;
 

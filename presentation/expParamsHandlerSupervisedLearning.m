@@ -1,7 +1,7 @@
 function [stimArray, startTrialNo,... 
     startBlockNo,...
     logVar, subLogF, returnFlag, logHeader,...
-    stimTypes] = expParamsHandlerSupervisedLearning(subNum, stimArrayFile, blockNo)
+    stimTypes] = expParamsHandlerSupervisedLearning(subNum, sessionId, stimArrayFile, blockNo)
 %% Function handling parameters/settings, stimuli and conflicts
 %
 % USAGE: [stimArray, sortIndices, startTrialNo,... 
@@ -24,6 +24,8 @@ function [stimArray, startTrialNo,...
 %
 % Inputs:
 % subNum        - Subject number, integer between 1-999
+% sessionId     - String, identifier of the experimental session (eg.
+%                'pretest', 'training1', etc.)
 % stimArrayFile - *.mat file with cell array "stimArray" containing all 
 %               stimuli + features (size: no. of stimuli X 12 columns)
 % blockNo       - Number of blocks to sort trials into, integer between
@@ -60,8 +62,8 @@ function [stimArray, startTrialNo,...
 
 %% Input checks
 
-if nargin ~= 3
-    error('Function needs input args "subNum", "stimArrayFile" and "blockNo"!');
+if nargin ~= 4
+    error('Function needs input args "subNum", "sessionId", "stimArrayFile" and "blockNo"!');
 end
 % subject number
 if ~ismembertol(subNum, 1:999)
@@ -79,6 +81,7 @@ end
 % user message
 disp([newline, 'Called paramsHandler function with input args: ',...
     newline, 'subNum: ', num2str(subNum),...
+    newline, 'sessionId: ', sessionId,...
     newline, 'stimArrayFile:', stimArrayFile,...
     newline, 'blockNo: ', num2str(blockNo)]);
 
@@ -95,9 +98,9 @@ stimArray = []; stimTypes = [];
 % subject folder name
 dirN = ['subject', num2str(subNum)];
 % subject parameters/settings file
-subParamsF = [dirN, '/sub', num2str(subNum), 'Params.mat'];
+subParamsF = [dirN, '/sub', num2str(subNum), '_', sessionId, 'Params.mat'];
 % subject log file
-subLogF = [dirN, '/sub', num2str(subNum), 'Log.mat'];
+subLogF = [dirN, '/sub', num2str(subNum), '_', sessionId, 'Log.mat'];
 % date and time of starting with a subject
 c = clock; d = date;
 timestamp = {[d, '-', num2str(c(4)), num2str(c(5))]};
